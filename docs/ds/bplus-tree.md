@@ -51,7 +51,7 @@ B+ 树的查找过程和 B 树类似。假设需要查找的键值是 $k$，那�
 
 ![](images/bplus-tree-4.webp)
 
-因为 45 比 30 大，所以要与右边的索引相比
+因为 45 比 35 大，所以要与右边的索引相比
 
 ![](images/bplus-tree-5.webp)
 
@@ -311,7 +311,7 @@ B+ 树的删除也仅在叶子节点中进行，当叶子节点中的最大关�
       } else {
         Node *cursor = root;
         Node *parent;
-        while (cursor->IS_LEAF == false) {
+        while (!cursor->IS_LEAF) {
           parent = cursor;
           for (int i = 0; i < cursor->size; i++) {
             if (x < cursor->key[i]) {
@@ -454,7 +454,7 @@ B+ 树的删除也仅在叶子节点中进行，当叶子节点中的最大关�
         Node *cursor = root;
         Node *parent;
         int leftSibling, rightSibling;
-        while (cursor->IS_LEAF == false) {
+        while (!cursor->IS_LEAF) {
           for (int i = 0; i < cursor->size; i++) {
             parent = cursor;
             leftSibling = i - 1;
@@ -694,7 +694,7 @@ B+ 树的删除也仅在叶子节点中进行，当叶子节点中的最大关�
           cout << cursor->key[i] << " ";
         }
         cout << "\n";
-        if (cursor->IS_LEAF != true) {
+        if (!cursor->IS_LEAF) {
           for (int i = 0; i < cursor->size + 1; i++) {
             display(cursor->ptr[i]);
           }

@@ -81,7 +81,7 @@ $$
     
     namespace fstdlib {
     
-    typedef long long ll;
+    using ll = long long;
     int mod = 998244353, grt = 3;
     
     class poly {
@@ -637,7 +637,7 @@ $$
       return f;
     }
     
-    typedef arbitrary_module_poly m_poly;
+    using m_poly = arbitrary_module_poly;
     }  // namespace fstdlib
     
     #endif
@@ -733,7 +733,7 @@ $F_n(x)=(n-1)F_{n-1}(x)+xF_{n-1}(x)$
 
 $F_n(x)=\prod\limits_{i=0}^{n-1}(x+i)=\dfrac{(x+n-1)!}{(x-1)!}$
 
-这其实是 $x$ 的 $n$ 次上升阶乘幂，记做 $x^{\overline n}$。这个东西自然是可以暴力分治乘 $O(n\log^2n)$ 求出的，但用上升幂相关做法可以 $O(n\log n)$ 求出。
+这其实是 $x$ 的 $n$ 次上升阶乘幂，记做 $x^{\overline n}$。这个东西自然是可以暴力分治乘 $O(n\log^2n)$ 求出的，但用上升幂相关做法可以 $O(n\log n)$ 求出，详情见 [多项式平移 | 连续点值平移](../poly/shift.md#同一行第一类无符号-stirling-数)。
 
 ### 同一列第一类斯特林数的计算
 
@@ -830,7 +830,7 @@ $$
 
 ## 习题
 
--   [HDU3625 Examining the Rooms](https://vjudge.net/problem/HDU-3625)
+-   [HDU3625 Examining the Rooms](https://acm.hdu.edu.cn/showproblem.php?pid=3625)
 -   [UOJ540 联合省选 2020 组合数问题](https://uoj.ac/problem/540)
 -   [UOJ269 清华集训 2016 如何优雅地求和](https://uoj.ac/problem/269)
 

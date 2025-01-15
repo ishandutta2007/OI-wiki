@@ -90,7 +90,7 @@ $a = \min \{ slack(v) | v\in{T'} \}$
       vector<bool> visy;   // 拜访数组 右
       vector<T> lx;
       vector<T> ly;
-      vector<vector<T> > g;
+      vector<vector<T>> g;
       vector<T> slack;
       T inf;
       T res;
@@ -104,7 +104,7 @@ $a = \min \{ slack(v) | v\in{T'} \}$
         n = max(_n, _m);
         inf = numeric_limits<T>::max();
         res = 0;
-        g = vector<vector<T> >(n, vector<T>(n));
+        g = vector<vector<T>>(n, vector<T>(n));
         matchx = vector<int>(n, -1);
         matchy = vector<int>(n, -1);
         pre = vector<int>(n);
@@ -249,18 +249,22 @@ $a = \min \{ slack(v) | v\in{T'} \}$
 
 ??? note "动态匈牙利算法参考代码"
     ```cpp
-    --8<-- "docs/graph/graph-matching/code/bigraph-weight-match/bigraph-weight-match_1.cpp"
+    --8<-- "docs/graph/code/graph-matching/bigraph-weight-match/bigraph-weight-match_1.cpp"
     ```
 
 ## 转化为费用流模型
 
-在图中新增一个源点和一个汇点。
+与 [二分图最大匹配](./bigraph-match.md) 类似，二分图的最大权匹配也可以转化为网络流问题来求解。
+
+首先，在图中新增一个源点和一个汇点。
 
 从源点向二分图的每个左部点连一条流量为 $1$，费用为 $0$ 的边，从二分图的每个右部点向汇点连一条流量为 $1$，费用为 $0$ 的边。
 
 接下来对于二分图中每一条连接左部点 $u$ 和右部点 $v$，边权为 $w$ 的边，则连一条从 $u$ 到 $v$，流量为 $1$，费用为 $w$ 的边。
 
-求这个网络的 [最大费用最大流](../flow/min-cost.md) 即可得到答案。
+另外，考虑到最大权匹配下，匹配边的数量不一定与最大匹配的匹配边数量相等，因此对于每个左部点，还需向汇点连一条流量为 $1$，费用为 $0$ 的边。
+
+求这个网络的 [最大费用最大流](../flow/min-cost.md) 即可得到答案。此时，该网络的最大流量一定为左部点的数量，而最大流量下的最大费用即对应一个最大权匹配方案。
 
 ## 习题
 
@@ -268,5 +272,5 @@ $a = \min \{ slack(v) | v\in{T'} \}$
     模板题
     
     ```cpp
-    --8<-- "docs/graph/graph-matching/code/bigraph-weight-match/bigraph-weight-match_2.cpp"
+    --8<-- "docs/graph/code/graph-matching/bigraph-weight-match/bigraph-weight-match_2.cpp"
     ```

@@ -9,12 +9,13 @@
 一棵红黑树满足如下性质：
 
 1.  节点是红色或黑色；
-2.  红色的节点的所有儿子的颜色必须是黑色，即从每个叶子到根的所有路径上不能有两个连续的红色节点；
-3.  从任一节点到其子树中的每个叶子的所有简单路径上都包含相同数目的黑色节点。（黑高平衡）
+2.  NIL 节点（空叶子节点）为黑色；
+3.  红色的节点的所有儿子的颜色必须是黑色，即从每个叶子到根的所有路径上不能有两个连续的红色节点；
+4.  从任一节点到其子树中的每个叶子的所有简单路径上都包含相同数目的黑色节点。（黑高平衡）
 
 这保证了从根节点到任意叶子的最长路径（红黑交替）不会超过最短路径（全黑）的二倍。从而保证了树的平衡性。
 
-维护这些性质是比较复杂的，如果我们要插入一个节点，首先，它一定会被染色成红色，否则会破坏性质 3。即使这样，我们还是有可能会破坏性质 2。因此需要进行调整。而删除节点就更加麻烦，与插入类似，我们不能删除黑色节点，否则会破坏黑高的平衡。如何方便地解决这些问题呢？
+维护这些性质是比较复杂的，如果我们要插入一个节点，首先，它一定会被染色成红色，否则会破坏性质 4。即使这样，我们还是有可能会破坏性质 3。因此需要进行调整。而删除节点就更加麻烦，与插入类似，我们不能删除黑色节点，否则会破坏黑高的平衡。如何方便地解决这些问题呢？
 
 ## 左偏红黑树（Left Leaning Red Black Tree）
 
@@ -22,7 +23,7 @@
 
 左偏红黑树是一种容易实现的红黑树变体。
 
-与普通的红黑树不同的是，在左偏红黑树中，是边具有颜色而不是节点具有颜色。我们习惯用一个节点的颜色代指它的父亲边的颜色。
+在以下左偏红黑树示意图中，是边具有颜色而不是节点具有颜色。我们习惯用一个节点的颜色代指它的父亲边的颜色。
 
 左偏红黑树对红黑树进行了进一步限制，一个黑色节点的左右儿子：
 
@@ -107,9 +108,11 @@
 
 下面我们来考虑怎么满足这个性质，注意，我们会在向下递归的时候 **临时地** 破坏左偏红黑树的若干性质，但是当我们从递归中返回时还会将其恢复。
 
+如下图所描述的，是一种较为简单的情况，此时 `h->rc->lc` 为黑色，我们只需要一次翻转颜色即可：
+
 ![llrbt-7](./images/llrbt-7.png)
 
-下图描述一种简单的情况，我们只需要一次翻转颜色即可。
+并且，在如上所示的翻转之后，不会使 `h->rc` 与 `h->rc->lc` 形成连续的红边；
 
 但如果 `h->rc->lc` 是红色，情况会比较复杂：
 
@@ -291,14 +294,14 @@
       Node *root_{nullptr};
     
      public:
-      typedef Key KeyType;
-      typedef Key ValueType;
-      typedef std::size_t SizeType;
-      typedef std::ptrdiff_t DifferenceType;
-      typedef Compare KeyCompare;
-      typedef Compare ValueCompare;
-      typedef Key &Reference;
-      typedef const Key &ConstReference;
+      using KeyType = Key;
+      using ValueType = Key;
+      using SizeType = std::size_t;
+      using DifferenceType = std::ptrdiff_t;
+      using KeyCompare = Compare;
+      using ValueCompare = Compare;
+      using Reference = Key &;
+      using ConstReference = const Key &;
     
       Set() = default;
     
@@ -443,8 +446,7 @@
     const Key &Set<Key, Compare>::get_min(Set::Node *root) const {
       Node *x = root;
       // will crash as intended when root == nullptr
-      for (; x->lc != nullptr; x = x->lc)
-        ;
+      for (; x->lc != nullptr; x = x->lc);
       return x->key;
     }
     

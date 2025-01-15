@@ -1,3 +1,5 @@
+author: LeverImmy
+
 红黑树是一种自平衡的二叉搜索树。每个节点额外存储了一个 color 字段 ("RED" or "BLACK")，用于确保树在插入和删除时保持平衡。
 
 ## 性质
@@ -50,7 +52,7 @@ class RBTreeMap {
 | `key`      | `Key`                 | 节点键值，具有唯一性和可排序性 |
 | `value`    | `Value`               | 节点内储存的值         |
 
-注：由于本文提供的代码示例中使用 `std::share_ptr` 进行内存管理，对此不熟悉的读者可以将下文中所有的 `NodePtr` 和 `ConstNodePtr` 理解为裸指针 `Node*`。但在实现删除操作时若使用 `Node*` 作为节点引用需注意应手动释放内存以避免内存泄漏，该操作在使用 `std::shared_ptr` 作为节点引用的示例代码中并未体现。
+注：由于本文提供的代码示例中使用 `std::shared_ptr` 进行内存管理，对此不熟悉的读者可以将下文中所有的 `NodePtr` 和 `ConstNodePtr` 理解为裸指针 `Node*`。但在实现删除操作时若使用 `Node*` 作为节点引用需注意应手动释放内存以避免内存泄漏，该操作在使用 `std::shared_ptr` 作为节点引用的示例代码中并未体现。
 
 ## 过程
 
@@ -60,9 +62,9 @@ class RBTreeMap {
 
 旋转操作是多数平衡树能够维持平衡的关键，它能在不改变一棵合法 BST 中序遍历结果的情况下改变局部节点的深度。
 
-![rbtree-rotations](images/rbtree-rotations.svg)
+![rbtree-rotations](images/rbtree-rotate.svg)
 
-如上图，从左图到右图的过程被称为左旋，左旋操作会使得 $\alpha$ 子树上结点的深度均减 1，使 $\gamma$ 子树上结点的深度均加 1，而 $\beta$ 子树上节点的深度则不变。从右图到左图的过程被称为右旋，右旋是左旋的镜像操作。
+如上图，从左图到右图的过程被称为右旋，右旋操作会使得 $T3$ 子树上结点的深度均加 1，使 $T1$ 子树上结点的深度均减 1，而 $T2$ 子树上节点的深度则不变。从右图到左图的过程被称为左旋，左旋是右旋的镜像操作。
 
 这里给出红黑树中节点的左旋操作的示例代码：
 
@@ -147,14 +149,14 @@ class RBTreeMap {
 
 #### Case 4
 
-当前节点 N 的父节点 P 和叔节点 U 均为红色，此时 P 包含了一个红色子节点，违反了红黑树的性质，需要进行重新染色。由于在当前节点 N 之前该树是一棵合法的红黑树，根据性质 4 可以确定 N 的祖父节点 G 一定是黑色，这时只要后续操作可以保证以 G 为根节点的子树在不违反性质 4 的情况下再递归维护祖父节点 G 以保证性质 3 即可。
+当前节点 N 的父节点 P 和叔节点 U 均为红色，此时 P 包含了一个红色子节点，违反了红黑树的性质，需要进行重新染色。由于在当前节点 N 之前该树是一棵合法的红黑树，根据性质 3 可以确定 N 的祖父节点 G 一定是黑色，这时只要后续操作可以保证以 G 为根节点的子树在不违反性质 4 的情况下再递归维护祖父节点 G 以保证性质 3 即可。
 
 因此，这种情况的维护需要：
 
 1.  将 P，U 节点染黑，将 G 节点染红（可以保证每条路径上黑色节点个数不发生改变）。
 2.  递归维护 G 节点（因为不确定 G 的父节点的状态，递归维护可以确保性质 3 成立）。
 
-![rbtree-insert-case4](images/rbtree-insert-case4.png)
+![rbtree-insert-case4](images/rbtree-insert-case4.svg)
 
 ???+ note "实现"
     ```cpp
@@ -182,7 +184,7 @@ class RBTreeMap {
 
 该种情况无法直接进行维护，需要通过旋转操作将子树结构调整为 Case 6 的初始状态并进入 Case 6 进行后续维护。
 
-![rbtree-insert-case5](images/rbtree-insert-case5.png)
+![rbtree-insert-case5](images/rbtree-insert-case5.svg)
 
 ???+ note "实现"
     ```cpp
@@ -211,16 +213,16 @@ class RBTreeMap {
 
 #### Case 6
 
-当前节点 N 与父节点 P 的方向相同（即 N 节点为右子节点且父节点为右子节点，或 N 节点为左子节点且父节点为右子节点。类似 AVL 树中 LL 和 RR 的情况）。根据性质 4，若 N 为新插入节点，U 则为 NIL 黑色节点，否则为普通黑色节点。
+当前节点 N 与父节点 P 的方向相同（即 N 节点为右子节点且父节点为右子节点，或 N 节点为左子节点且父节点为左子节点。类似 AVL 树中 LL 和 RR 的情况）。根据性质 4，若 N 为新插入节点，U 则为 NIL 黑色节点，否则为普通黑色节点。
 
 在这种情况下，若想在不改变结构的情况下使得子树满足性质 3，则需将 G 染成红色，将 P 染成黑色。但若这样维护的话则性质 4 被打破，且无法保证在 G 节点的父节点上性质 3 是否成立。而选择通过旋转改变子树结构后再进行重新染色即可同时满足性质 3 和 4。
 
 因此，这种情况的维护需要：
 
-1.  若 N 为左子节点则左旋祖父节点 G，否则右旋祖父节点 G.（该操作使得旋转过后 P - N 这条路径上的黑色节点个数比 P - G - U 这条路径上少 1，暂时打破性质 4）。
+1.  若 N 为左子节点则右旋祖父节点 G，否则左旋祖父节点 G.（该操作使得旋转过后 P - N 这条路径上的黑色节点个数比 P - G - U 这条路径上少 1，暂时打破性质 4）。
 2.  重新染色，将 P 染黑，将 G 染红，同时满足了性质 3 和 4。
 
-![rbtree-insert-case6](images/rbtree-insert-case6.png)
+![rbtree-insert-case6](images/rbtree-insert-case6.svg)
 
 ???+ note "实现"
     ```cpp
@@ -258,7 +260,7 @@ class RBTreeMap {
 
 #### Case 0
 
-若待删除节点为根节点的话，直接删除即可，这里不将其算作删除操作的 3 种基本情况中。
+若待删除节点为树中唯一的节点的话，直接删除即可，这里不将其算作删除操作的 3 种基本情况中。
 
 #### Case 1
 
@@ -365,9 +367,9 @@ class RBTreeMap {
 
 1.  若待删除节点 N 为左子节点，左旋 P; 若为右子节点，右旋 P。
 2.  将 S 染黑，P 染红（保证 S 节点的父节点满足性质 4）。
-3.  此时只需根据结构对以当前 P 节点为根的子树进行维护即可（无需再考虑旋转染色后的 S 和 D 节点）。
+3.  此时只需根据结构，在以 P 节点为根的子树中，继续对节点 N 进行维护即可（无需再考虑旋转染色后的 S 和 D 节点）。
 
-![rbtree-remove-case1](images/rbtree-remove-case1.png)
+![rbtree-remove-case1](images/rbtree-remove-case1.svg)
 
 ???+ note "实现"
     ```cpp
@@ -402,7 +404,7 @@ class RBTreeMap {
 
 兄弟节点 S 和侄节点 C, D 均为黑色，父节点 P 为红色。此时只需将 S 染红，将 P 染黑即可满足性质 3 和 4。
 
-![rbtree-remove-case2](images/rbtree-remove-case2.png)
+![rbtree-remove-case2](images/rbtree-remove-case2.svg)
 
 ???+ note "实现"
     ```cpp
@@ -426,7 +428,7 @@ class RBTreeMap {
 
 此时也无法通过一步操作同时满足性质 3 和 4，因此选择将 S 染红，优先满足局部性质 4 的成立，再递归维护 P 节点根据上部结构进行后续维护。
 
-![rbtree-remove-case3](images/rbtree-remove-case3.png)
+![rbtree-remove-case3](images/rbtree-remove-case3.svg)
 
 ???+ note "实现"
     ```cpp
@@ -453,19 +455,19 @@ class RBTreeMap {
 
 该过程分为三步：
 
-1.  若 N 为左子节点，右旋 P，否则左旋 P。
+1.  若 N 为左子节点，右旋 S，否则左旋 S。
 2.  将节点 S 染红，将节点 C 染黑。
 3.  此时已满足 Case 5 的条件，进入 Case 5 完成后续维护。
 
-![rbtree-remove-case4](images/rbtree-remove-case4.png)
+![rbtree-remove-case4](images/rbtree-remove-case4.svg)
 
 ???+ note "实现"
     ```cpp
     // clang-format off
     // Case 4: Sibling is BLACK, close nephew is RED,
     //         distant nephew is BLACK
-    //   Step 1. If N is a left child, right rotate P;
-    //           If N is a right child, left rotate P.
+    //   Step 1. If N is a left child, right rotate S;
+    //           If N is a right child, left rotate S.
     //   Step 2. Swap the color of close nephew and sibling
     //   Step 3. Goto case 5
     //                            {P}                {P}
@@ -491,19 +493,18 @@ class RBTreeMap {
 
 #### Case 5
 
-兄弟节点是黑色，且 close nephew 节点 C 为红色，distant nephew 节点 D 为黑色，父节点既可为红色又可为黑色。此时性质 4 无法满足，通过旋转操作使得黑色节点 S 变为该子树的根节点再进行染色即可满足性质 4。具体步骤如下：
+兄弟节点是黑色，且 distant nephew 节点 D 为红色，close nephew 节点和父节点既可为红色又可为黑色。此时性质 4 无法满足，通过旋转操作使得黑色节点 S 变为该子树的根节点再进行染色即可满足性质 4。具体步骤如下：
 
 1.  若 N 为左子节点，左旋 P，反之右旋 P。
 2.  交换父节点 P 和兄弟节点 S 的颜色，此时性质 3 可能被打破。
 3.  将 distant nephew 节点 D 染黑，同时保证了性质 3 和 4。
 
-![rbtree-remove-case5](images/rbtree-remove-case5.png)
+![rbtree-remove-case5](images/rbtree-remove-case5.svg)
 
 ???+ note "实现"
     ```cpp
     // clang-format off
-    // Case 5: Sibling is BLACK, close nephew is BLACK,
-    //         distant nephew is RED
+    // Case 5: Sibling is BLACK, distant nephew is RED
     //   Step 1. If N is a left child, left rotate P;
     //           If N is a right child, right rotate P.
     //   Step 2. Swap the color of parent and sibling.
@@ -512,9 +513,8 @@ class RBTreeMap {
     //      / \    l-rotate(P)    / \    repaint    / \
     //    [N] [S]  ==========>  {P} <D>  ======>  [P] [D]
     //        / \               / \               / \
-    //      [C] <D>           [N] [C]           [N] [C]
+    //      {C} <D>           [N] {C}           [N] {C}
     // clang-format on
-    assert(closeNephew == nullptr || closeNephew->isBlack());
     assert(distantNephew->isRed());
     // Step 1
     rotateSameDirection(node->parent, direction);
@@ -534,7 +534,7 @@ class RBTreeMap {
 
 对这方面内容感兴趣的可以观看 [从 2-3-4 树的角度学习理解红黑树（视频）](https://www.bilibili.com/video/BV1BB4y1X7u3) 进行学习。
 
-虽然二者在结构上是等价的，但这并不意味这二者可以互相取代或者在所有情况下都可以互换使用。最显然的例子就是数据库的索引，由于 B 树不存在旋转操作，因此其所有节点的存储位置都是可以被确定的，这种结构对于不区分堆栈的磁盘来说显然比红黑树动态分配节点存储空间要更加合适。另外一点就是由于 B 树/B+ 树内储存的数据都是连续的，对于有着大量连续查询需求的数据库来说更加友好。而对于小数据量随机插入/查询的需求，由于 B 树的每个节点都存储了若干条记录，因此发生 cache miss 时就需要将整个节点的所有数据读入缓存中，在这些情况下 BST（红黑树，AVL，Splay 等）则反而会优与 B 树/B+ 树。对这方面内容感兴趣的读者可以去阅读一下 [为什么 rust 中的 Map 使用的是 B 树而不是像其他主流语言一样使用红黑树](https://doc.rust-lang.org/std/collections/struct.BTreeMap.html)。
+虽然二者在结构上是等价的，但这并不意味这二者可以互相取代或者在所有情况下都可以互换使用。最显然的例子就是数据库的索引，由于 B 树不存在旋转操作，因此其所有节点的存储位置都是可以被确定的，这种结构对于不区分堆栈的磁盘来说显然比红黑树动态分配节点存储空间要更加合适。另外一点就是由于 B 树/B+ 树内储存的数据都是连续的，对于有着大量连续查询需求的数据库来说更加友好。而对于小数据量随机插入/查询的需求，由于 B 树的每个节点都存储了若干条记录，因此发生 cache miss 时就需要将整个节点的所有数据读入缓存中，在这些情况下 BST（红黑树，AVL，Splay 等）则反而会优于 B 树/B+ 树。对这方面内容感兴趣的读者可以去阅读一下 [为什么 rust 中的 Map 使用的是 B 树而不是像其他主流语言一样使用红黑树](https://doc.rust-lang.org/std/collections/struct.BTreeMap.html)。
 
 ## 红黑树在实际工程项目中的使用
 

@@ -1,4 +1,4 @@
-author: H-J-Granger, accelsao, Ir1d, Early0v0, Henry-ZHR, HeliumOI, AntiLeaf
+author: H-J-Granger, accelsao, Ir1d, Early0v0, Henry-ZHR, HeliumOI, AntiLeaf, ShizuhaAki
 
 ## 带花树算法（Blossom Algorithm）
 
@@ -64,7 +64,7 @@ author: H-J-Granger, accelsao, Ir1d, Early0v0, Henry-ZHR, HeliumOI, AntiLeaf
       };
     
       vector<edge> edges;
-      vector<vector<int> > g;
+      vector<vector<int>> g;
       int n;
     
       graph(int _n) : n(_n) { g.resize(n); }
@@ -95,7 +95,7 @@ author: H-J-Granger, accelsao, Ir1d, Early0v0, Henry-ZHR, HeliumOI, AntiLeaf
     // blossom / find_max_unweighted_matching
     template <typename T>
     vector<int> find_max_unweighted_matching(const undirectedgraph<T> &g) {
-      std::mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+      std::mt19937 rng(std::random_device{}());
       vector<int> match(g.n, -1);   // 匹配
       vector<int> aux(g.n, -1);     // 时间戳记
       vector<int> label(g.n);       // 「o」或「i」
@@ -219,7 +219,7 @@ author: H-J-Granger, accelsao, Ir1d, Early0v0, Henry-ZHR, HeliumOI, AntiLeaf
 
 ??? note "[UOJ #79. 一般图最大匹配](https://uoj.ac/problem/79)"
     ```cpp
-    --8<-- "docs/graph/graph-matching/code/general-match/general-match_1.cpp"
+    --8<-- "docs/graph/code/graph-matching/general-match/general-match_1.cpp"
     ```
 
 ## 基于高斯消元的一般图匹配算法
@@ -284,7 +284,7 @@ $$
 
 由定理可知，如果只需要求最大匹配数，而无需匹配方案，那么只需要用一次高斯消元求出 $\operatorname{rank}\tilde{A}$ 即可，远比带花树简洁。不过如果需要输出方案，会稍微复杂一些，需要用到下面介绍的算法。
 
-## 构造完美匹配
+### 构造完美匹配
 
 由 Tutte 定理和上面的定理可知，如果 $G$ 存在完美匹配，那么 $\tilde{A}$ 有很大概率满秩。方便起见，以下叙述中均省略「有很大概率」。
 
@@ -357,7 +357,7 @@ $$
 
 ??? note "[UOJ #79. 一般图最大匹配](https://uoj.ac/problem/79)"
     ```cpp
-    --8<-- "docs/graph/graph-matching/code/general-match/general-match_2.cpp"
+    --8<-- "docs/graph/code/graph-matching/general-match/general-match_2.cpp"
     ```
 
 ## 习题

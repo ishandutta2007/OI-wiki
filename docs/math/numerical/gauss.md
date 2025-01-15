@@ -6,10 +6,6 @@ author: StudyingFather, CCXXXI, Chrogeek, ChungZH, countercurrent-time, Early0v0
 
 高斯消元法除了用于线性方程组求解外，还可以用于行列式计算、求矩阵的逆，以及其他计算机和工程方面。
 
-夏建明等人之前提出了应用图形处理器 (GPU) 加速求解线性方程组的高斯消元法，所提出的算法与基于 CPU 的算法相比较取得更快的运算速度。二是提出各种变异高斯消元法以满足特定工作的需要。
-
-***
-
 ## 消元法及高斯消元法思想
 
 ### 定义
@@ -266,9 +262,9 @@ $$
 ### 实现
 
 ```c++
-const double EPS = 1E-9;
+constexpr double EPS = 1E-9;
 int n;
-vector<vector<double> > a(n, vector<double>(n));
+vector<vector<double>> a(n, vector<double>(n));
 
 double det = 1;
 for (int i = 0; i < n; ++i) {
@@ -337,7 +333,7 @@ std::vector<bool> GaussElimination(
     for (int j = 1; j <= m; j++)
       if (i != j && matrix[j].test(i)) matrix[j] ^= matrix[i];
   }
-  std::vector<bool> ans(n + 1, 0);
+  std::vector<bool> ans(n + 1);
   for (int i = 1; i <= n; i++) ans[i] = matrix[i].test(0);
   return ans;
 }

@@ -122,57 +122,6 @@ void splay(int x) {
 }
 ```
 
-#### Splay 操作的时间复杂度
-
-因为 zig 和 zag 是 **对称** 操作，我们只需要对 zig，zig−zig，zig−zag 操作分析复杂度。采用 [势能分析](../basic/complexity.md#势能分析)，定义一个 $n$ 个节点的 splay 树进行了 $m$ 次 splay 步骤。可记 $w(x)=[\log(\operatorname{size}(x))]$, 定义势能函数为 $\varphi =\sum w(x)$,$\varphi (0) \leq n \log n$，在第 $i$ 次操作后势能为 $\varphi (i)$, 则我们只需要求出初始势能和每次的势能变化量的和即可。
-
-1.  **zig**: 势能的变化量为
-
-    $$
-    \begin{aligned}
-    1+w'(x)+w'(fa)−w(x)−w(fa) & \leq 1+w'(fa)−w(x) \\
-    & \leq 1+w'(x)−w(x)
-    \end{aligned}
-    $$
-
-2.  **zig-zig**:  势能变化量为
-
-    $$
-    \begin{aligned}
-    1+w'(x)+w'(fa)+w'(g)−w(x)−w(fa)−w(g) & \leq 1+w'(fa)+w'(g)−w(x)−w(fa) \\
-    & \leq 1+ w'(x)+w'(g)−2w(x) \\
-    & \leq 3(w'(x)−w(x))
-    \end{aligned}
-    $$
-
-3.  **zig-zag**:  势能变化量为
-
-    $$
-    \begin{aligned}
-    1+w'(x)+w'(fa)+w'(g)−w(x)−w(fa)−w(g) & \leq 1+w'(fa)+w'(g)−w(x)−w(fa) \\
-    & \leq 1+w'(g)+w'(fa)−2w(x) \\
-    & \leq 2 w'(x)−w'(g)−w'(fa) + w'(fa)+w'(g)−w(x)−w(fa) \\
-    & \leq 2(w'(x)−w(x))
-    \end{aligned}
-    $$
-
-由此可见，三种 splay 步骤的势能全部可以缩放为 $\leq 3(w'(x)−w(x))$. 令 $w^{(n)}(x)=w'^{(n-1)}(x)$,$w^{(0)}(x)=w(x)$, 假设 splay 操作一次依次访问了 $x_{1}, x_{2}, \cdots, x_{n}$, 最终 $x_{1}$ 成为根节点，我们可以得到：
-
-$$
-\begin{aligned}
-3\left(\sum_{i=0}^{n-2}\left(w^{(i+1)}(x_{1})-w^{(i)}(x_{1})\right)+w(n)−w^{(n-1)}(x_{1})\right)+1 & = 3(w(n)−w(x_{1}))+1 \\
-& \leq \log n
-\end{aligned}
-$$
-
-继而可得：
-
-$$
-\sum_{i=1}^m (\varphi (m-i+1)−\varphi (m−i)) +\varphi (0) = n \log n+m \log n
-$$
-
-因此，对于 $n$ 个节点的 splay 树，做一次 splay 操作的均摊复杂度为 $O(\log n)$。因此基于 splay 的插入，查询，删除等操作的时间复杂度也为均摊 $O(\log n)$。
-
 ### 插入操作
 
 #### 过程
@@ -241,6 +190,7 @@ int rk(int k) {
       cur = ch[cur][0];
     } else {
       res += sz[ch[cur][0]];
+      if (!cur) return res + 1;
       if (k == val[cur]) {
         splay(cur);
         return res + 1;
@@ -374,11 +324,109 @@ void del(int k) {
 }
 ```
 
+## 时间复杂度
+
+在 Splay 树中，由于 **zig** 和 **zag** 操作是对称的，因此我们只需分析 **zig**、**zig-zig** 和 **zig-zag** 三种操作的复杂度。为此，我们采用 **势能分析法**，通过研究势能的变化来推导操作的均摊复杂度。假设对一棵包含 $n$ 个节点的 Splay 树进行了 $m$ 次 splay 操作，可以通过以下定义和性质来进行分析：
+
+**定义**:
+
+1.  **单个节点的势能**：$w(x) = \log(\text{size}(x))$，其中 $\text{size}(x)$ 表示以节点 $x$ 为根的子树大小。
+
+2.  **整棵树的势能**：$\varphi = \sum w(x)$，即树中所有节点势能的总和，初始势能满足 $\varphi(0) \leq n \log n$。
+
+3.  **第 $i$ 次操作的均摊成本**：$c_i = t_i + \varphi(i) - \varphi(i-1)$，其中 $t_i$ 为实际操作代价，$\varphi(i)$ 和 $\varphi(i-1)$ 分别为操作后和操作前的势能。
+
+**性质**:
+
+1.  如果 $fa$ 是 $x$ 的父节点，则有 $w(fa) \geq w(x)$，即父节点的势能不小于子节点的势能。
+2.  由于根节点的子树大小在操作前后保持不变，因此根节点的势能在操作过程中不变。
+3.  如果 $fa$ 的两个子节点分别是 $x$ 和 $y$，那么有 $2w(fa) - w(x) - w(y) \geq 2$
+
+??? note "性质 3 的证明"
+    1.  设 $\text{size}(fa) = z$，$\text{size}(x) = y$，$\text{size}(y) = x$，则有 $z = x + y + 1$。
+    2.  因此，$2w(fa) - w(x) - w(y) = \log z^2 - \log y - \log x = \log \frac{z^2}{x \cdot y}$。
+    3.  带入 $z = x + y + 1$，可以推导出：$\log \frac{(x + y + 1)^2}{x \cdot y} > \log \frac{(x + y)^2}{x \cdot y} \geq \log 4 = 2$。
+
+接下来，分别对 **zig**、**zig-zig** 和 **zig-zag** 操作进行势能分析。
+
+**Zig**：根据性质 1 和 2，有 $w(fa) = w'(x)$，且 $w'(x) \geq w'(fa)$。由此，均摊成本为：
+
+$$
+\begin{aligned}
+c_i &= 1 + w'(x) + w'(fa) - w(x) - w(fa)\\
+&= 1 + w'(fa) - w(x)\\
+&\leq 1 + w'(x) - w(x)
+\end{aligned}
+$$
+
+**Zig-Zig**：根据性质 1 和 2，有 $w(g) = w'(x)$，且 $w'(x) \geq w'(fa)$，并且 $w(x) \leq w(fa)$。根据性质 3，可得：
+
+$$
+2 \cdot w'(x) - w(x) - w'(g) \geq 2
+$$
+
+由此，均摊成本为：
+
+$$
+c_i = 2 + w'(x) + w'(fa) + w'(g) - w(x) - w(fa) - w(g)
+$$
+
+简化后：
+
+$$
+\begin{aligned}
+c_i &= 2 + w'(fa) + w'(g) - w(x) - w(fa)\\
+&\leq 2w'(x) + w'(fa) - 2w(x) - w(fa)\\
+&\leq 3 \cdot (w'(x) - w(x))
+\end{aligned}
+$$
+
+**Zig-Zag**：根据性质 1 和 2，有 $w(g) = w'(x)$，且 $w(fa) \geq w(x)$。根据性质 3，可得：
+
+$$
+2 \cdot w'(x) - w'(g) - w'(fa) \geq 2
+$$
+
+由此，均摊成本为：
+
+$$
+c_i = 2 + w'(x) + w'(fa) + w'(g) - w(x) - w(fa) - w(g)
+$$
+
+简化后：
+
+$$
+\begin{aligned}
+c_i&= 2 + w'(g) + w'(fa) - w(x) - w(fa)\\
+&\leq 2 \cdot w'(x) - w(x) - w(fa)\\
+&\leq 2 \cdot (w'(x) - w(x))
+\end{aligned}
+$$
+
+**总结**:
+
+由此可见，三种 splay 步骤的均摊成本全部可以缩放为 $\leq 3(w'(x)−w(x))$. 令 $w^{(n)}(x)=w'^{(n-1)}(x)$,$w^{(0)}(x)=w(x)$, 假设一次 splay 操作依次访问了 $x_{1}, x_{2}, \cdots, x_{n}$, 最终 $x_{1}$ 成为根节点，我们可以得到：
+
+$$
+\begin{aligned}
+3\left(\sum_{i=0}^{n-2}\left(w^{(i+1)}(x_{1})-w^{(i)}(x_{1})\right)+w(n)−w^{(n-1)}(x_{1})\right)+1 & = 3(w(n)−w(x_{1}))+1 \\
+& \leq \log n
+\end{aligned}
+$$
+
+继而可得：
+
+$$
+\sum_{i=1}^m (\varphi (m-i+1)−\varphi (m−i)) +\varphi (0) = n \log n+m \log n
+$$
+
+因此，对于 $n$ 个节点的 splay 树，做一次 splay 操作的均摊复杂度为 $O(\log n)$。从而基于 splay 的插入，查询，删除等操作的时间复杂度也为均摊 $O(\log n)$。
+
 ## 实现
 
 ```cpp
 #include <cstdio>
-const int N = 100005;
+constexpr int N = 100005;
 int rt, tot, fa[N], ch[N][2], val[N], cnt[N], sz[N];
 
 struct Splay {
@@ -447,6 +495,7 @@ struct Splay {
         cur = ch[cur][0];
       } else {
         res += sz[ch[cur][0]];
+        if (!cur) return res + 1;
         if (k == val[cur]) {
           splay(cur);
           return res + 1;
@@ -545,6 +594,196 @@ int main() {
 }
 ```
 
+## 序列操作
+
+Splay 也可以运用在序列上，用于维护区间信息。与线段树对比，Splay 常数较大，但是支持更复杂的序列操作，如区间翻转等。
+
+将序列建成的 Splay 有如下性质：
+
+-   Splay 的中序遍历相当于原序列从左到右的遍历。
+
+-   Splay 上的一个节点代表原序列的一个元素；Splay 上的一颗子树，代表原序列的一段区间。
+
+因为有 splay 操作，可以快速提取出代表某个区间的 Splay 子树。
+
+在操作之前，你需要先把这颗 Splay 建出来。根据 Splay 的特性，直接建出一颗只有右儿子的链即可，时间复杂度仍然是正确的。
+
+### 一些进阶操作
+
+Splay 的一颗子树代表原序列的一段区间。现在想找到序列区间 $[L, R]$ 代表的子树，只需要将代表 $a_{L - 1}$ 的节点 Splay 到根，再将代表 $a_{R + 1}$ 的节点 splay 到根的右儿子即可。根据「Splay 的中序遍历相当于原序列从左到右的遍历」，对应 $a_{R + 1}$ 的节点的左子树中序遍历为序列 $a[L, R]$，故其为区间 $[L, R]$ 代表的子树。
+
+一般会建立左右两个哨兵节点 $0$ 和 $n + 1$，放在数列的最开头和最结尾，防止 $L - 1$ 或 $R + 1$ 超出数列范围。
+
+所以要将 splay 函数进行一些修改，能够实现将节点旋转到目标点的儿子。如果目标点 `goal` 为 $0$ 说明旋转到根节点。
+
+#### 实现
+
+```cpp
+void splay(int x, int goal = 0) {
+  if (goal == 0) rt = x;
+  while (fa[x] != goal) {
+    int f = fa[x], g = fa[fa[x]];
+    if (g != goal) {
+      if (get(f) == get(x))
+        rotate(f);
+      else
+        rotate(x);
+    }
+    rotate(x);
+  }
+}
+```
+
+### 区间翻转
+
+Splay 常见的应用之一，模板题目是 [文艺平衡树](https://loj.ac/problem/105)。
+
+#### 过程
+
+先将询问区间的子树提取出来。因为是区间翻转，我们需要将这颗子树的中序遍历顺序翻转。
+
+一个暴力做法是每次将根节点的左右儿子交换，然后递归左右子树做同样的操作，这样复杂度为 $O(n)$，不可承受。可以考虑使用懒标记，先给根打上「翻转标记」并交换其左右儿子。当递归到一个带懒标记的点时，将懒标记下传即可。
+
+#### 实现
+
+```cpp
+void tagrev(int x) {
+  swap(ch[x][0], ch[x][1]);
+  lazy[x] ^= 1;
+}
+
+void pushdown(int x) {
+  if (lazy[x]) {
+    tagrev(ch[x][0]);
+    tagrev(ch[x][1]);
+    lazy[x] = 0;
+  }
+}
+
+void reverse(int l, int r) {
+  int L = kth(l - 1), R = kth(r + 1);
+  splay(L), splay(R, L);
+  int tmp = ch[ch[L][1]][0];
+  tagrev(tmp);
+}
+```
+
+## 实现
+
+注意 $\operatorname{kth}$ 中要下传翻转标记。
+
+```cpp
+#include <algorithm>
+#include <cstdio>
+constexpr int N = 100005;
+
+int n, m, l, r, a[N];
+
+int rt, tot, fa[N], ch[N][2], val[N], sz[N], lazy[N];
+
+struct Splay {
+  void maintain(int x) { sz[x] = sz[ch[x][0]] + sz[ch[x][1]] + 1; }
+
+  bool get(int x) { return x == ch[fa[x]][1]; }
+
+  void clear(int x) {
+    ch[x][0] = ch[x][1] = fa[x] = val[x] = sz[x] = lazy[x] = 0;
+  }
+
+  void rotate(int x) {
+    int y = fa[x], z = fa[y], chk = get(x);
+    ch[y][chk] = ch[x][chk ^ 1];
+    if (ch[x][chk ^ 1]) fa[ch[x][chk ^ 1]] = y;
+    ch[x][chk ^ 1] = y;
+    fa[y] = x;
+    fa[x] = z;
+    if (z) ch[z][y == ch[z][1]] = x;
+    maintain(y);
+    maintain(x);
+  }
+
+  void splay(int x, int goal = 0) {
+    if (goal == 0) rt = x;
+    while (fa[x] != goal) {
+      int f = fa[x], g = fa[fa[x]];
+      if (g != goal) {
+        if (get(f) == get(x))
+          rotate(f);
+        else
+          rotate(x);
+      }
+      rotate(x);
+    }
+  }
+
+  void tagrev(int x) {
+    std::swap(ch[x][0], ch[x][1]);
+    lazy[x] ^= 1;
+  }
+
+  void pushdown(int x) {
+    if (lazy[x]) {
+      tagrev(ch[x][0]);
+      tagrev(ch[x][1]);
+      lazy[x] = 0;
+    }
+  }
+
+  int build(int l, int r, int f) {
+    if (l > r) return 0;
+    int mid = (l + r) / 2, cur = ++tot;
+    val[cur] = a[mid], fa[cur] = f;
+    ch[cur][0] = build(l, mid - 1, cur);
+    ch[cur][1] = build(mid + 1, r, cur);
+    maintain(cur);
+    return cur;
+  }
+
+  int kth(int k) {
+    int cur = rt;
+    while (1) {
+      pushdown(cur);
+      if (ch[cur][0] && k <= sz[ch[cur][0]]) {
+        cur = ch[cur][0];
+      } else {
+        k -= 1 + sz[ch[cur][0]];
+        if (k <= 0) {
+          splay(cur);
+          return cur;
+        }
+        cur = ch[cur][1];
+      }
+    }
+  }
+
+  void reverse(int l, int r) {
+    int L = kth(l), R = kth(r + 2);
+    splay(L), splay(R, L);
+    int tmp = ch[ch[L][1]][0];
+    tagrev(tmp);
+  }
+
+  void print(int x) {
+    pushdown(x);
+    if (ch[x][0]) print(ch[x][0]);
+    if (val[x] >= 1 && val[x] <= n) printf("%d ", val[x]);
+    if (ch[x][1]) print(ch[x][1]);
+  }
+} tree;
+
+int main() {
+  scanf("%d%d", &n, &m);
+  for (int i = 0; i <= n + 1; i++) a[i] = i;
+  rt = tree.build(0, n + 1, 0);
+  while (m--) {
+    scanf("%d%d", &l, &r);
+    tree.reverse(l, r);
+  }
+  tree.print(rt);
+  return 0;
+}
+```
+
 ## 例题
 
 以下题目都是裸的 Splay 维护二叉查找树。
@@ -558,8 +797,9 @@ int main() {
 
 -   [「Cerc2007」robotic sort 机械排序](https://www.luogu.com.cn/problem/P4402)
 -   [二逼平衡树（树套树）](https://loj.ac/problem/106)
--   [bzoj 2827 千山鸟飞绝](https://hydro.ac/d/bzoj/p/2827)
--   [「Lydsy1706 月赛」K 小值查询](https://hydro.ac/d/bzoj/p/4923)
+-   [BZOJ 2827 千山鸟飞绝](https://hydro.ac/p/bzoj-P2827)
+-   [「Lydsy1706 月赛」K 小值查询](https://hydro.ac/p/bzoj-P4923)
+-   [POJ3580 SuperMemo](http://poj.org/problem?id=3580)
 
 ## 参考资料与注释
 

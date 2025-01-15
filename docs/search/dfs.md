@@ -87,6 +87,7 @@ DFS 为图论中的概念，详见 [DFS（图论）](../graph/dfs.md) 页面。�
         ```python
         arr = [0] * 103  # arr 用于记录方案
         
+        
         def dfs(n, i, a):
             if n == 0:
                 print(arr[1:i])
@@ -94,6 +95,7 @@ DFS 为图论中的概念，详见 [DFS（图论）](../graph/dfs.md) 页面。�
                 for j in range(a, n + 1):
                     arr[i] = j
                     dfs(n - j, i + 1, j)  # 请仔细思考该行含义。
+        
         
         # 主函数
         n, m = map(int, input().split())
@@ -128,10 +130,7 @@ DFS 为图论中的概念，详见 [DFS（图论）](../graph/dfs.md) 页面。�
 
 ## 例题
 
-[Luogu P1706 全排列问题](https://www.luogu.com.cn/problem/P1706)
-
-C++ 代码：
-
-```cpp
---8<-- "docs/search/code/dfs/dfs_1.cpp"
-```
+???+ note "[Luogu P1706 全排列问题](https://www.luogu.com.cn/problem/P1706)"
+    ```cpp
+    --8<-- "docs/search/code/dfs/dfs_1.cpp"
+    ```
