@@ -31,7 +31,7 @@
 
 === "C++"
     ```cpp
-    const int N = 100010;
+    constexpr int N = 100010;
     
     int n, w, a[N];
     vector<int> bucket[N];
@@ -73,6 +73,7 @@
     a = [0] * N
     bucket = [[] for i in range(N)]
     
+    
     def insertion_sort(A):
         for i in range(1, len(A)):
             key = A[i]
@@ -81,6 +82,7 @@
                 A[j + 1] = A[j]
                 j -= 1
             A[j + 1] = key
+    
     
     def bucket_sort():
         bucket_size = int(w / n + 1)

@@ -58,8 +58,8 @@ struct Query {
   int id, k;  // 这个询问的编号, 这个询问的k
 };
 
-int ans[N];        // ans[i] 表示编号为i的询问的答案
-int check(int x);  // 返回原数列中小于等于x的数的个数
+int ans[N], a[N];  // ans[i] 表示编号为i的询问的答案，a 为原数列
+int check(int l, int r);  // 返回原数列中值域在 [l,r] 中的数的个数
 
 void solve(int l, int r, vector<Query> q)
 // 请补全这个函数
@@ -80,18 +80,28 @@ void solve(int l, int r, vector<Query> q)
 
 ???+ note "实现"
     ```cpp
+    int check(int l, int r) {
+      int res = 0;
+      for (int i = 1; i <= n; i++) {
+        if (l <= a[i] && a[i] <= r) res++;
+      }
+      return res;
+    }
+    
     void solve(int l, int r, vector<Query> q) {
       int m = (l + r) / 2;
       if (l == r) {
         for (unsigned i = 0; i < q.size(); i++) ans[q[i].id] = l;
         return;
       }
-      vector<int> q1, q2;
-      for (unsigned i = 0; i < q.size(); i++)
-        if (q[i].k <= check(m))
+      vector<Query> q1, q2;
+      int t = check(l, m);
+      for (unsigned i = 0; i < q.size(); i++) {
+        if (q[i].k <= t)
           q1.push_back(q[i]);
         else
-          q[i].k -= check(m), q2.push_back(q[i]);
+          q[i].k -= t, q2.push_back(q[i]);
+      }
       solve(l, m, q1), solve(m + 1, r, q2);
       return;
     }
@@ -157,7 +167,7 @@ void solve(int l, int r, vector<Query> q)
 
 ### 带修区间第 k 小
 
-> **题 4**  [Dynamic Rankings](http://acm.zju.edu.cn/onlinejudge/showProblem.do?problemCode=2112) 给定一个数列，要支持单点修改，区间查第 $k$ 小。
+> **题 4**  [Dynamic Rankings](https://pintia.cn/problem-sets/91827364500/exam/problems/91827365611) 给定一个数列，要支持单点修改，区间查第 $k$ 小。
 
 修改操作可以直接理解为从原数列中删去一个数再添加一个数，为方便起见，将询问和修改统称为「操作」。因后面的操作会依附于之前的操作，不能如题 3 一样将统计和处理询问分开，故可将所有操作存于一个数组，用标识区分类型，依次处理每个操作。为便于处理树状数组，修改操作可分拆为擦除操作和插入操作。
 

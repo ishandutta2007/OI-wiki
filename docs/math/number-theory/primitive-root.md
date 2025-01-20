@@ -25,7 +25,7 @@
 $a,a^2,\cdots,a^{\delta_m(a)}$ 模 $m$ 两两不同余。
 
 ???+ note "证明"
-    考虑反证，假设存在两个数 $i\ne j$，且 $a^i\equiv a^j\pmod m$，则有 $a^{|i-j|}\equiv 1\pmod p$.
+    考虑反证，假设存在两个数 $i\ne j$，且 $a^i\equiv a^j\pmod m$，则有 $a^{|i-j|}\equiv 1\pmod m$.
     
     但是显然的有：$0<|i-j|<\delta_m(a)$，这与阶的最小性矛盾，故原命题成立。
 
@@ -184,21 +184,11 @@ $$
     
     当对于 $\varphi(m)$ 的每个素因数 $p$，都有 $g^{\frac{\varphi(m)}{p}}\not\equiv 1\pmod m$ 成立时，我们假设存在一个 $g$，其不是模 $m$ 的原根。
     
-    因为 $g$ 不是 $m$ 的原根，则存在一个 $t<\varphi(m)$ 使得 $g^t\equiv 1\pmod{m}$.
+    因为 $g$ 不是 $m$ 的原根，且将 $g^{\varphi(m)}\equiv 1\pmod m$ 带入性质二，得到 $g$ 的阶 $\delta_m(g)$ 应满足 $\delta_m(g) \lt \varphi(m)$ 且 $\delta_m(g) \mid \varphi(m)$.
     
-    由 [裴蜀定理](./bezouts.md) 得，一定存在一组 $k,x$ 满足 $kt=x\varphi(m)+(t,\varphi(m))$.
+    故存在 $\varphi(m)$ 的素因数 $p$ 使得 $\delta_m(g) \mid \frac{\varphi(m)}{p}$.
     
-    又由 [欧拉定理](./fermat.md#欧拉定理) 得 $g^{\varphi(m)}\equiv 1\pmod{m}$，故有：
-    
-    $$
-    1\equiv g^{kt}\equiv g^{x\varphi(m)+(t,\varphi(m))}\equiv g^{(t,\varphi(m))}\pmod{m}
-    $$
-    
-    由于 $(t, \varphi(m)) \mid \varphi(m)$ 且 $(t, \varphi(m))\leqslant t < \varphi(m)$.
-    
-    故存在 $\varphi(m)$ 的素因数 $p$ 使得 $(t, \varphi(m)) \mid \frac{\varphi(m)}{p}$.
-    
-    则 $g^{\frac{\varphi(m)}{p}}\equiv g^{(t, \varphi(m))}\equiv 1\pmod{m}$，与条件矛盾。
+    则 $g^{\frac{\varphi(m)}{p}}\equiv g^{\delta_m(g)}\equiv 1\pmod{m}$，与条件矛盾。
     
     故假设不成立，原命题成立。
 
@@ -222,7 +212,7 @@ $$
 ???+ note "原根存在定理"
     一个数 $m$ 存在原根当且仅当 $m=2,4,p^{\alpha},2p^{\alpha}$，其中 $p$ 为奇素数，$\alpha\in \mathbf{N}^{*}$.
 
-我们来证明它，分成 $m=2,4$、$m=p^{\alpha}$、$m=2p^{\alpha}$ 与 $m\ne 2,4,p,p^{\alpha}$，四个部分。
+我们来证明它，分成 $m=2,4$、$m=p^{\alpha}$、$m=2p^{\alpha}$ 与 $m\ne 2,4,p^{\alpha},2p^{\alpha}$，四个部分。
 
 1.  $m=2,4$，原根显然存在。
 
@@ -272,7 +262,7 @@ $$
                 \delta_m\left(b^Z\right)=W
                 $$
                 
-                又因为显然有 $(Y,W)=1$，$YW=\left[\delta_p(a),\delta_p(b)\right]$，则再由阶的 [性质 1](#性质-1)，可得：
+                又因为显然有 $(Y,W)=1$，$YW=\left[\delta_p(a),\delta_p(b)\right]$，则再由阶的 [性质 3](#性质-3)，可得：
                 
                 $$
                 \begin{aligned}
@@ -394,7 +384,7 @@ $$
             
             结合 $\varphi(p^{\alpha})=\varphi(2p^{\alpha})$ 可知 $G$ 为模 $2p^{\alpha}$ 的原根。
 
-4.  $m\ne 2,4,p^{\alpha},p^{\alpha}$，其中 $p$ 为奇素数，$\alpha\in\mathbf{N}^*$.
+4.  $m\ne 2,4,p^{\alpha},2p^{\alpha}$，其中 $p$ 为奇素数，$\alpha\in\mathbf{N}^*$.
 
     ???+ note "定理 4"
         对于 $m\ne 2,4$，且不存在奇素数 $p$ 及 $\alpha \in \mathbf{N}^{*}$ 使得 $m=p^{\alpha},2p^{\alpha}$，模 $m$ 的原根不存在。

@@ -64,8 +64,8 @@ Ford–Fulkerson 增广是计算最大流的一类算法的总称。该方法运
         & = ||S, T|| \\
     \end{aligned}
     $$
-
-    为了取等，第一个不等号需要 $\{(u, v) \mid u \in T, v \in S\}$ 的所有边均空流，第二个不等号需要 $\{(v, u) \mid u \in S, v \in T\}$ 的所有边均满流。原引理得证。
+    
+    为了取等，第一个不等号需要 $\{(u, v) \mid u \in T, v \in S\}$ 的所有边均空流，第二个不等号需要 $\{(u, v) \mid u \in S, v \in T\}$ 的所有边均满流。原引理得证。
 
 那么，对于任意网络，以上取等条件是否总是能被满足呢？如果答案是肯定的，则最大流最小割定理得证。以下我们尝试证明。
 
@@ -109,7 +109,7 @@ Ford–Fulkerson 增广是计算最大流的一类算法的总称。该方法运
 
 增广总轮数的上界是 $O(|V||E|)$。这一论断在网络资料中常被伪证（或被含糊其辞略过）。以下我们尝试给出一个较正式的证明[^ref_EK]。
 
-???+ info "增广总轮数的上界的证明"
+???+ note "增广总轮数的上界的证明"
     首先，我们引入一个引理——最短路非递减引理。具体地，我们记 $d_f(u)$ 为 $G_f$ 上结点 $u$ 到源点 $s$ 的距离（即最短路长度，下同）。对于某一轮增广，我们用 $f$ 和 $f'$ 分别表示增广前的流和增广后的流，我们断言，对于任意结点 $u$，增广总是使得 $d_{f'}(u) \geq d_f(u)$。我们将在稍后证明这一引理。
     
     不妨称增广路上剩余容量最小的边是饱和边（存在多条边同时最小则取任一）。如果一条有向边 $(u, v)$ 被选为饱和边，增广会清空其剩余容量导致饱和边的消失，并且退流导致反向边的新增（如果原先反向边不存在），即 $(u, v) \not \in E_{f'}$ 且 $(v, u) \in E_{f'}$。以上分析使我们知道，对于无向边 $(u, v)$，其被增广的两种方向总是交替出现。
@@ -120,20 +120,20 @@ Ford–Fulkerson 增广是计算最大流的一类算法的总称。该方法运
     
     接下来我们证明最短路非递减引理，即 $d_{f'}(u) \geq d_f(u)$。这一证明并不难，但可能稍显绕口，读者可以停下来认真思考片刻。
     
-    ???+ info "最短路非递减引理的证明"
+    ???+ note "最短路非递减引理的证明"
         考虑反证。对于某一轮增广，我们假设存在若干结点，它们在该轮增广后到 $s$ 的距离较增广前减小。我们记 $v$ 为其中到 $s$ 的距离最小的一者（即 $v = \arg \min_{x \in V, d_{f'}(x) < d_f(x)} d_{f'}(x)$）。注意，根据反证假设，此时 $d_{f'}(v) < d_f(v)$ 是已知条件。
-    
+        
         在 $G_{f'}$ 中 $s$ 到 $v$ 的最短路上，我们记 $u$ 是 $v$ 的上一个结点，即 $d_{f'}(u) + 1 = d_{f'}(v)$。
-    
+        
         为了不让 $u$ 破坏 $v$ 的「距离最小」这一性质，$u$ 必须满足 $d_{f'}(u) \geq d_f(u)$。
-    
+        
         对于上式，我们令不等号两侧同加，得 $d_{f'}(v) \geq d_f(u) + 1$。根据反证假设进行放缩，我们得到 $d_f(v) > d_f(u) + 1$。
-    
+        
         以下我们尝试讨论 $(u, v)$ 上的增广方向。
-    
-        - 假设有向边 $(u, v) \in E_f$。根据 BFS「广度优先」的性质，我们有 $d_f(u) + 1 \geq d_f(v)$。该式与放缩结果冲突，导出矛盾。
-        - 假设有向边 $(u, v) \not \in E_f$。根据 $u$ 的定义我们已知 $(u, v) \in E_{f'}$，因此这条边的存在必须是当前轮次的增广经过了 $(v, u)$ 并退流产生反向边的结果，也即 $d_f(v) + 1 = d_f(u)$。该式与放缩结果冲突，导出矛盾。
-    
+        
+        -   假设有向边 $(u, v) \in E_f$。根据 BFS「广度优先」的性质，我们有 $d_f(u) + 1 \geq d_f(v)$。该式与放缩结果冲突，导出矛盾。
+        -   假设有向边 $(u, v) \not \in E_f$。根据 $u$ 的定义我们已知 $(u, v) \in E_{f'}$，因此这条边的存在必须是当前轮次的增广经过了 $(v, u)$ 并退流产生反向边的结果，也即 $d_f(v) + 1 = d_f(u)$。该式与放缩结果冲突，导出矛盾。
+        
         由于 $(u, v)$ 沿任何方向增广都会导出矛盾，我们知道反证假设不成立，最短路非递减引理得证。
 
 将单轮 BFS 增广的复杂度与增广轮数的上界相乘，我们得到 Edmonds–Karp 算法的时间复杂度是 $O(|V||E|^2)$。
@@ -144,8 +144,8 @@ Edmonds–Karp 算法的可能实现如下。
 
 ??? note "参考代码"
     ```cpp
-    #define maxn 250
-    #define INF 0x3f3f3f3f
+    constexpr int MAXN = 250;
+    constexpr int INF = 0x3f3f3f3f;
     
     struct Edge {
       int from, to, cap, flow;
@@ -156,8 +156,8 @@ Edmonds–Karp 算法的可能实现如下。
     struct EK {
       int n, m;             // n：点数，m：边数
       vector<Edge> edges;   // edges：所有边的集合
-      vector<int> G[maxn];  // G：点 x -> x 的所有边在 edges 中的下标
-      int a[maxn], p[maxn];  // a：点 x -> BFS 过程中最近接近点 x 的边给它的最大流
+      vector<int> G[MAXN];  // G：点 x -> x 的所有边在 edges 中的下标
+      int a[MAXN], p[MAXN];  // a：点 x -> BFS 过程中最近接近点 x 的边给它的最大流
                              // p：点 x -> BFS 过程中最近接近点 x 的边
     
       void init(int n) {
@@ -232,7 +232,7 @@ Edmonds–Karp 算法的可能实现如下。
 
 注意到在 $G_L$ 上 DFS 的过程中，如果结点 $u$ 同时具有大量入边和出边，并且 $u$ 每次接受来自入边的流量时都遍历出边表来决定将流量传递给哪条出边，则 $u$ 这个局部的时间复杂度最坏可达 $O(|E|^2)$。为避免这一缺陷，如果某一时刻我们已经知道边 $(u, v)$ 已经增广到极限（边 $(u, v)$ 已无剩余容量或 $v$ 的后侧已增广至阻塞），则 $u$ 的流量没有必要再尝试流向出边 $(u, v)$。据此，对于每个结点 $u$，我们维护 $u$ 的出边表中第一条还有必要尝试的出边。习惯上，我们称维护的这个指针为当前弧，称这个做法为当前弧优化。
 
-??? info "多路增广"
+??? note "多路增广"
     多路增广是 Dinic 算法的一个常数优化——如果我们在层次图上找到了一条从 $s$ 到 $t$ 的增广路 $p$，则接下来我们未必需要重新从 $s$ 出发找下一条增广路，而可能从 $p$ 上最后一个仍有剩余容量的位置出发寻找一条岔路进行增广。考虑到其与回溯形式的一致性，这一优化在 DFS 的代码实现中也是自然的。
     
     ??? failure "常见误区"
@@ -244,7 +244,7 @@ Edmonds–Karp 算法的可能实现如下。
 
 首先，我们尝试证明单轮增广中 DFS 求阻塞流的时间复杂度是 $O(|V||E|)$。
 
-???+ info "单轮增广的时间复杂度的证明"
+???+ note "单轮增广的时间复杂度的证明"
     考虑阻塞流 $f_b$ 中的每条增广路，它们都是在 $G_L$ 上每次沿当前弧跳转而得到的结果，其中每条增广路经历的跳转次数不可能多于 $|V|$。
     
     每找到一条增广路就有一条饱和边消失（剩余容量清零）。考虑阻塞流 $f_b$ 中的每条增广路，我们将被它们清零的饱和边形成的边集记作 $E_1$。考虑到 $G_L$ 分层的性质，饱和边消失后其反向边不可能在同一轮增广内被其他增广路经过，因此，$E_1$ 是 $E_L$ 的子集。
@@ -261,7 +261,7 @@ Edmonds–Karp 算法的可能实现如下。
 
 注意到层次图的层数显然不可能超过 $|V|$，如果我们可以证明层次图的层数在增广过程中严格单增，则 Dinic 算法的增广轮数是 $O(|V|)$ 的。接下来我们尝试证明这一结论[^ref_Dinic]。
 
-???+ info "层次图层数单调性的证明"
+???+ note "层次图层数单调性的证明"
     我们需要引入预流推进类算法（另一类最大流算法）中的一个概念——高度标号。为了更方便地结合高度标号表述我们的证明，在证明过程中，我们令 $d_f(u)$ 为 $G_f$ 上结点 $u$ 到 **汇点**  $t$ 的距离，从 **汇点** 而非源点出发进行分层（这并没有本质上的区别）。对于某一轮增广，我们用 $f$ 和 $f'$ 分别表示增广前的流和增广后的流。在该轮增广中求解并加入阻塞流后，记层次图由 $G_L = (V, E_L)$ 变为 $G'_{L} = (V, E'_L)$。
     
     我们给高度标号一个不严格的临时定义——在网络 $G = (V, E)$ 上，令 $h$ 是点集 $V$ 到整数集 $N$ 上的函数，$h$ 是 $G$ 上合法的高度标号当且仅当 $h(u) \leq h(v) + 1$ 对于 $(u, v) \in E$ 恒成立。
@@ -302,26 +302,26 @@ Edmonds–Karp 算法的可能实现如下。
 
 在单位容量的网络中，Dinic 算法的单轮增广的时间复杂度为 $O(|E|)$。
 
-???+ info "证明"
+???+ note "证明"
     这是因为，每次增广都会导致增广路上的所有边均饱和并消失，故单轮增广中每条边只能被增广一次。
 
 在单位容量的网络中，Dinic 算法的增广轮数是 $O(|E|^{\frac{1}{2}})$ 的。
 
-???+ info "证明"
+???+ note "证明"
     以源点 $s$ 为中心分层，记 $d_f(u)$ 为 $G_f$ 上结点 $u$ 到源点 $s$ 的距离。另外，我们定义将点集 $\left\{u \mid u \in V, d_f(u) = k \right\}$ 定义为编号为 $k$ 的层次 $D_k$，并记 $S_k = \cup_{i \leq k} D_i$。
     
     假设我们已经进行了 $|E|^{\frac{1}{2}}$ 轮增广。根据鸽巢原理，至少存在一个 $k$ 满足边集 $\left\{ (u, v) \mid u \in D_k, v \in D_{k+1}, (u, v) \in E_f \right\}$ 的大小不超过 $\frac {|E|} {|E|^{\frac{1}{2}}} \approx |E|^{\frac{1}{2}}$。显然，$\{S_k, V - S_k\}$ 是 $G_f$ 上的 $s$-$t$ 割，且其割容量不超过 $|E|^{\frac{1}{2}}$。根据最大流最小割定理，$G_f$ 上的最大流不超过 $|E|^{\frac{1}{2}}$，也即 $G_f$ 上最多还能执行 $|E|^{\frac{1}{2}}$ 轮增广。因此，总增广轮数是 $O(|E|^{\frac{1}{2}})$ 的。
 
 在单位容量的网络中，Dinic 算法的增广轮数是 $O(|V|^{\frac{2}{3}})$ 的。
 
-???+ info "证明"
+???+ note "证明"
     假设我们已经进行了 $2 |V|^{\frac{2}{3}}$ 轮增广。由于至多有半数的（$|V|^{\frac{2}{3}}$ 个）层次包含多于 $|V|^{\frac{1}{3}}$ 个点，故无论我们如何分配所有层次的大小，至少存在一个 $k$ 满足相邻两个层次同时包含不多于 $|V|^{\frac{1}{3}}$ 个点，即 $|D_k| \leq |V|^{\frac{1}{3}}$ 且 $|D_{k+1}| \leq |V|^{\frac{1}{3}}$。
     
     为最大化 $D_k$ 和 $D_{k+1}$ 之间的边数，我们假定这是一个完全二分图，此时边集 $\left\{ (u, v) \mid u \in D_k, v \in D_{k+1}, (u, v) \in E_f \right\}$ 的大小不超过 $|V|^{\frac{2}{3}}$。显然，$\{S_k, V - S_k\}$ 是 $G_f$ 上的 $s$-$t$ 割，且其割容量不超过 $|V|^{\frac{2}{3}}$。根据最大流最小割定理，$G_f$ 上的最大流不超过 $|V|^{\frac{2}{3}}$，也即 $G_f$ 上最多还能执行 $|V|^{\frac{2}{3}}$ 轮增广。因此，总增广轮数是 $O(|V|^{\frac{2}{3}})$ 的。
 
 在单位容量的网络中，如果除源汇点外每个结点 $u$ 都满足 $\mathit{deg}_{\mathit{in}}(u) = 1$ 或 $\mathit{deg}_{\mathit{out}}(u) = 1$，则 Dinic 算法的增广轮数是 $O(|V|^{\frac{1}{2}})$ 的。其中，$\mathit{deg}_{\mathit{in}}(u)$ 和 $\mathit{deg}_{\mathit{out}}(u)$ 分别代表结点 $u$ 的入度和出度。
 
-???+ info "证明"
+???+ note "证明"
     我们引入以下引理——对于这一形式的网络，其上的任意流总是可以分解成若干条单位流量的、**点不交** 的增广路。
     
     假设我们已经进行了 $|V|^{\frac{1}{2}}$ 轮增广。根据层次图的定义，此时任意新的增广路的长度至少为 $|V|^{\frac{1}{2}}$。
@@ -428,17 +428,16 @@ $$
 
 MPM 算法的每个阶段都需要 $O(V^2)$，因为最多有 $V$ 次迭代（因为至少删除了所选的参考节点），并且在每次迭代中，我们删除除最多 $V$ 之外经过的所有边。求和，我们得到 $O(V^2+E)=O(V^2)$。由于阶段总数少于 $V$，因此 MPM 算法的总运行时间为 $O(V^3)$。
 
-##### 阶段总数小于 V 的证明
-
-MPM 算法在少于 $V$ 个阶段内结束。为了证明这一点，我们必须首先证明两个引理。
-
-**引理 1**：每次迭代后，从 $s$ 到每个点的距离不会减少，也就是说，$level_{i+1}[v] \ge level_{i}[v]$。
-
-**证明**：固定一个阶段 $i$ 和点 $v$。考虑 $G_{i}^R$ 中从 $s$ 到 $v$ 的任意最短路径 $P$。$P$ 的长度等于 $level_{i}[v]$。注意 $G_{i}^R$ 只能包含 $G_{i}^R$ 的后向边和前向边。如果 $P$ 没有 $G_{i}^R$ 的后边，那么 $level_{i+1}[v] \ge level_{i}[v]$。因为 $P$ 也是 $G_{i}^R$ 中的一条路径。现在，假设 $P$ 至少有一个后向边且第一个这样的边是 $(u,w)$，那么 $level_{i+1}[u] \ge level_{i}[u]$（因为第一种情况）。边 $(u,w)$ 不属于 $G_{i}^R$，因此 $(u,w)$ 受到前一次迭代的增广路的影响。这意味着 $level_{i}[u] = level_{i}[w]+1$。此外，$level_{i+1}[w] = level_{i+1}[u]+1$。从这两个方程和 $level_{i+1}[u] \ge level_{i}[u]$ 我们得到 $level_{i+1}[w] \ge level_{i}[w]+2$。路径的剩余部分也可以使用相同思想。
-
-**引理 2**：$level_{i+1}[t] > level_{i}[t]$。
-
-**证明**：从引理一我们得出，$level_{i+1}[t] \ge level_{i}[t]$。假设 $level_{i+1}[t] = level_{i}[t]$，注意 $G_{i}^R$ 只能包含 $G_{i}^R$ 的后向边和前向边。这意味着 $G_{i}^R$ 中有一条最短路径未被增广路阻塞。这就形成了矛盾。
+???+ note "阶段总数小于 V 的证明"
+    MPM 算法在少于 $V$ 个阶段内结束。为了证明这一点，我们必须首先证明两个引理。
+    
+    **引理 1**：每次迭代后，从 $s$ 到每个点的距离不会减少，也就是说，$level_{i+1}[v] \ge level_{i}[v]$。
+    
+    **证明**：固定一个阶段 $i$ 和点 $v$。考虑 $G_{i}^R$ 中从 $s$ 到 $v$ 的任意最短路径 $P$。$P$ 的长度等于 $level_{i}[v]$。注意 $G_{i}^R$ 只能包含 $G_{i}^R$ 的后向边和前向边。如果 $P$ 没有 $G_{i}^R$ 的后边，那么 $level_{i+1}[v] \ge level_{i}[v]$。因为 $P$ 也是 $G_{i}^R$ 中的一条路径。现在，假设 $P$ 至少有一个后向边且第一个这样的边是 $(u,w)$，那么 $level_{i+1}[u] \ge level_{i}[u]$（因为第一种情况）。边 $(u,w)$ 不属于 $G_{i}^R$，因此 $(u,w)$ 受到前一次迭代的增广路的影响。这意味着 $level_{i}[u] = level_{i}[w]+1$。此外，$level_{i+1}[w] = level_{i+1}[u]+1$。从这两个方程和 $level_{i+1}[u] \ge level_{i}[u]$ 我们得到 $level_{i+1}[w] \ge level_{i}[w]+2$。路径的剩余部分也可以使用相同思想。
+    
+    **引理 2**：$level_{i+1}[t] > level_{i}[t]$。
+    
+    **证明**：从引理一我们得出，$level_{i+1}[t] \ge level_{i}[t]$。假设 $level_{i+1}[t] = level_{i}[t]$，注意 $G_{i}^R$ 只能包含 $G_{i}^R$ 的后向边和前向边。这意味着 $G_{i}^R$ 中有一条最短路径未被增广路阻塞。这就形成了矛盾。
 
 #### 实现
 
@@ -458,12 +457,12 @@ MPM 算法在少于 $V$ 个阶段内结束。为了证明这一点，我们必�
             : v(_v), u(_u), cap(_cap), flow(0ll) {}
       };
     
-      const long long flow_inf = 1e18;
+      constexpr static long long flow_inf = 1e18;
       vector<FlowEdge> edges;
       vector<char> alive;
       vector<long long> pin, pout;
-      vector<list<int> > in, out;
-      vector<vector<int> > adj;
+      vector<list<int>> in, out;
+      vector<vector<int>> adj;
       vector<long long> ex;
       int n, m = 0;
       int s, t;
@@ -666,12 +665,12 @@ MPM 算法在少于 $V$ 个阶段内结束。为了证明这一点，我们必�
     struct ISAP {
       int n, m, s, t;
       vector<Edge> edges;
-      vector<int> G[maxn];
-      bool vis[maxn];
-      int d[maxn];
-      int cur[maxn];
-      int p[maxn];
-      int num[maxn];
+      vector<int> G[MAXN];
+      bool vis[MAXN];
+      int d[MAXN];
+      int cur[MAXN];
+      int p[MAXN];
+      int num[MAXN];
     
       void AddEdge(int from, int to, int cap) {
         edges.push_back(Edge(from, to, cap, 0));
@@ -685,7 +684,7 @@ MPM 算法在少于 $V$ 个阶段内结束。为了证明这一点，我们必�
         memset(vis, 0, sizeof(vis));
         queue<int> Q;
         Q.push(t);
-        vis[t] = 1;
+        vis[t] = true;
         d[t] = 0;
         while (!Q.empty()) {
           int x = Q.front();
@@ -693,7 +692,7 @@ MPM 算法在少于 $V$ 个阶段内结束。为了证明这一点，我们必�
           for (int i = 0; i < G[x].size(); i++) {
             Edge& e = edges[G[x][i] ^ 1];
             if (!vis[e.from] && e.cap > e.flow) {
-              vis[e.from] = 1;
+              vis[e.from] = true;
               d[e.from] = d[x] + 1;
               Q.push(e.from);
             }
@@ -859,7 +858,7 @@ $$
 
 ???+ "核心代码"
     ```cpp
-    const int N = 1e4 + 4, M = 1e5 + 5, INF = 0x3f3f3f3f;
+    constexpr int N = 1e4 + 4, M = 1e5 + 5, INF = 0x3f3f3f3f;
     int n, m, s, t, maxflow, tot;
     int ht[N], ex[N];
     
@@ -924,36 +923,40 @@ HLPP 推送的条件是 $h(u)=h(v)+1$，而如果在算法的某一时刻，存�
     #include <queue>
     #include <stack>
     using namespace std;
-    const int N = 1200, M = 120000, INF = 0x3f3f3f3f;
+    constexpr int N = 1200, M = 120000, INF = 0x3f3f3f3f;
     int n, m, s, t;
     
     struct qxx {
-      int nex, t, v;
+      int nex, t;
+      long long v;
     };
     
     qxx e[M * 2 + 1];
     int h[N + 1], cnt = 1;
     
-    void add_path(int f, int t, int v) { e[++cnt] = (qxx){h[f], t, v}, h[f] = cnt; }
+    void add_path(int f, int t, long long v) {
+      e[++cnt] = qxx{h[f], t, v}, h[f] = cnt;
+    }
     
-    void add_flow(int f, int t, int v) {
+    void add_flow(int f, int t, long long v) {
       add_path(f, t, v);
       add_path(t, f, 0);
     }
     
-    int ht[N + 1], ex[N + 1],
-        gap[N];  // 高度; 超额流; gap 优化 gap[i] 为高度为 i 的节点的数量
-    stack<int> B[N];  // 桶 B[i] 中记录所有 ht[v]==i 的v
-    int level = 0;    // 溢出节点的最高高度
+    int ht[N + 1];        // 高度;
+    long long ex[N + 1];  // 超额流;
+    int gap[N];           // gap 优化. gap[i] 为高度为 i 的节点的数量
+    stack<int> B[N];      // 桶 B[i] 中记录所有 ht[v]==i 的v
+    int level = 0;        // 溢出节点的最高高度
     
     int push(int u) {      // 尽可能通过能够推送的边推送超额流
       bool init = u == s;  // 是否在初始化
       for (int i = h[u]; i; i = e[i].nex) {
-        const int &v = e[i].t, &w = e[i].v;
-        if (!w || init == false && ht[u] != ht[v] + 1 ||
-            ht[v] == INF)  // 初始化时不考虑高度差为1
-          continue;
-        int k = init ? w : min(w, ex[u]);
+        const int &v = e[i].t;
+        const long long &w = e[i].v;
+        // 初始化时不考虑高度差为1
+        if (!w || (init == false && ht[u] != ht[v] + 1) || ht[v] == INF) continue;
+        long long k = init ? w : min(w, ex[u]);
         // 取到剩余容量和超额流的最小值，初始化时可以使源的溢出量为负数。
         if (v != s && v != t && !ex[v]) B[ht[v]].push(v), level = max(level, ht[v]);
         ex[u] -= k, ex[v] += k, e[i].v -= k, e[i ^ 1].v += k;  // push
@@ -990,11 +993,11 @@ HLPP 推送的条件是 $h(u)=h(v)+1$，而如果在算法的某一时刻，存�
     
     // 选出当前高度最大的节点之一, 如果已经没有溢出节点返回 0
     int select() {
-      while (B[level].size() == 0 && level > -1) level--;
+      while (level > -1 && B[level].size() == 0) level--;
       return level == -1 ? 0 : B[level].top();
     }
     
-    int hlpp() {                  // 返回最大流
+    long long hlpp() {            // 返回最大流
       if (!bfs_init()) return 0;  // 图不连通
       memset(gap, 0, sizeof(gap));
       for (int i = 1; i <= n; i++)
@@ -1021,7 +1024,7 @@ HLPP 推送的条件是 $h(u)=h(v)+1$，而如果在算法的某一时刻，存�
         scanf("%d%d%d", &u, &v, &w);
         add_flow(u, v, w);
       }
-      printf("%d", hlpp());
+      printf("%lld", hlpp());
       return 0;
     }
     ```

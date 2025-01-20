@@ -67,7 +67,7 @@ $rk[i]$ 表示后缀 $i$ 的排名，是重要的辅助数组，后文也称排�
     
     using namespace std;
     
-    const int N = 1000010;
+    constexpr int N = 1000010;
     
     char s[N];
     int n, w, sa[N], rk[N << 1], oldrk[N << 1];
@@ -88,13 +88,14 @@ $rk[i]$ 表示后缀 $i$ 的排名，是重要的辅助数组，后文也称排�
         });  // 这里用到了 lambda
         memcpy(oldrk, rk, sizeof(rk));
         // 由于计算 rk 的时候原来的 rk 会被覆盖，要先复制一份
+        // 若两个子串相同，它们对应的 rk 也需要相同，所以要去重
         for (p = 0, i = 1; i <= n; ++i) {
           if (oldrk[sa[i]] == oldrk[sa[i - 1]] &&
               oldrk[sa[i] + w] == oldrk[sa[i - 1] + w]) {
             rk[sa[i]] = p;
           } else {
             rk[sa[i]] = ++p;
-          }  // 若两个子串相同，它们对应的 rk 也需要相同，所以要去重
+          }
         }
       }
     
@@ -121,7 +122,7 @@ $rk[i]$ 表示后缀 $i$ 的排名，是重要的辅助数组，后文也称排�
     
     using namespace std;
     
-    const int N = 1000010;
+    constexpr int N = 1000010;
     
     char s[N];
     int n, sa[N], rk[N << 1], oldrk[N << 1], id[N], cnt[N];
@@ -190,30 +191,15 @@ $rk[i]$ 表示后缀 $i$ 的排名，是重要的辅助数组，后文也称排�
 思考一下第二关键字排序的实质，其实就是把超出字符串范围（即 $sa[i] + w > n$）的 $sa[i]$ 放到 $sa$ 数组头部，然后把剩下的依原顺序放入：
 
 ```cpp
-for (p = 0, i = n; i > n - w; --i) id[++p] = i;
-
-for (i = 1; i <= n; ++i) {
-  if (sa[i] > w) id[++p] = sa[i] - w;
-}
+int cur = 0;
+for (int i = n - w + 1; i <= n; i++) id[++cur] = i;
+for (int i = 1; i <= n; i++)
+  if (sa[i] > w) id[++cur] = sa[i] - w;
 ```
 
 #### 优化计数排序的值域
 
 每次对 $rk$ 进行更新之后，我们都计算了一个 $p$，这个 $p$ 即是 $rk$ 的值域，将值域改成它即可。
-
-#### 将 rk\[id\[i]] 存下来，减少不连续内存访问
-
-这个优化在数据范围较大时效果非常明显。
-
-#### 用函数 cmp 来计算是否重复
-
-同样是减少不连续内存访问，在数据范围较大时效果比较明显。
-
-把 `oldrk[sa[i]] == oldrk[sa[i - 1]] && oldrk[sa[i] + w] == oldrk[sa[i - 1] + w]`
-
-替换成 `cmp(sa[i], sa[i - 1], w)`，
-
-`bool cmp(int x, int y, int w) { return oldrk[x] == oldrk[y] && oldrk[x + w] == oldrk[y + w]; }`。
 
 #### 若排名都不相同可直接生成后缀数组
 
@@ -228,45 +214,46 @@ for (i = 1; i <= n; ++i) {
     
     using namespace std;
     
-    const int N = 1000010;
+    constexpr int N = 1000010;
     
     char s[N];
-    // key1[i] = rk[id[i]]（作为基数排序的第一关键字数组）
-    int n, sa[N], rk[N], oldrk[N << 1], id[N], key1[N], cnt[N];
-    
-    bool cmp(int x, int y, int w) {
-      return oldrk[x] == oldrk[y] && oldrk[x + w] == oldrk[y + w];
-    }
+    int n;
+    int m, p, rk[N * 2], oldrk[N], sa[N * 2], id[N], cnt[N];
     
     int main() {
-      int i, m = 127, p, w;
-    
       scanf("%s", s + 1);
       n = strlen(s + 1);
-      for (i = 1; i <= n; ++i) ++cnt[rk[i] = s[i]];
-      for (i = 1; i <= m; ++i) cnt[i] += cnt[i - 1];
-      for (i = n; i >= 1; --i) sa[cnt[rk[i]]--] = i;
+      m = 128;
     
-      for (w = 1;; w <<= 1, m = p) {  // m=p 就是优化计数排序值域
-        for (p = 0, i = n; i > n - w; --i) id[++p] = i;
-        for (i = 1; i <= n; ++i)
-          if (sa[i] > w) id[++p] = sa[i] - w;
+      for (int i = 1; i <= n; i++) cnt[rk[i] = s[i]]++;
+      for (int i = 1; i <= m; i++) cnt[i] += cnt[i - 1];
+      for (int i = n; i >= 1; i--) sa[cnt[rk[i]]--] = i;
+    
+      for (int w = 1;; w <<= 1, m = p) {  // m = p 即为值域优化
+        int cur = 0;
+        for (int i = n - w + 1; i <= n; i++) id[++cur] = i;
+        for (int i = 1; i <= n; i++)
+          if (sa[i] > w) id[++cur] = sa[i] - w;
     
         memset(cnt, 0, sizeof(cnt));
-        for (i = 1; i <= n; ++i) ++cnt[key1[i] = rk[id[i]]];
-        // 注意这里px[i] != i，因为rk没有更新，是上一轮的排名数组
+        for (int i = 1; i <= n; i++) cnt[rk[i]]++;
+        for (int i = 1; i <= m; i++) cnt[i] += cnt[i - 1];
+        for (int i = n; i >= 1; i--) sa[cnt[rk[id[i]]]--] = id[i];
     
-        for (i = 1; i <= m; ++i) cnt[i] += cnt[i - 1];
-        for (i = n; i >= 1; --i) sa[cnt[key1[i]]--] = id[i];
-        memcpy(oldrk + 1, rk + 1, n * sizeof(int));
-        for (p = 0, i = 1; i <= n; ++i)
-          rk[sa[i]] = cmp(sa[i], sa[i - 1], w) ? p : ++p;
-        if (p == n) {
-          break;
+        p = 0;
+        memcpy(oldrk, rk, sizeof(oldrk));
+        for (int i = 1; i <= n; i++) {
+          if (oldrk[sa[i]] == oldrk[sa[i - 1]] &&
+              oldrk[sa[i] + w] == oldrk[sa[i - 1] + w])
+            rk[sa[i]] = p;
+          else
+            rk[sa[i]] = ++p;
         }
+    
+        if (p == n) break;  // p = n 时无需再排序
       }
     
-      for (i = 1; i <= n; ++i) printf("%d ", sa[i]);
+      for (int i = 1; i <= n; i++) printf("%d ", sa[i]);
     
       return 0;
     }
@@ -376,7 +363,7 @@ $lcp(sa[i],sa[j])=\min\{height[i+1..j]\}$
 
 感性理解：如果 $height$ 一直大于某个数，前这么多位就一直没变过；反之，由于后缀已经排好序了，不可能变了之后变回来。
 
-严格证明可以参考[\[2004\] 后缀数组 by. 徐智磊][1]。
+严格证明可以参考[\[2004\] 后缀数组 by. 许智磊][1]。
 
 有了这个定理，求两子串最长公共前缀就转化为了 [RMQ 问题](../topic/rmq.md)。
 
@@ -458,8 +445,8 @@ $\frac{n(n+1)}{2}-\sum\limits_{i=2}^nheight[i]$
 
 ## 习题
 
--   [Uva 760 - DNA Sequencing](http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=24&page=show_problem&problem=701)
--   [Uva 1223 - Editor](http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=24&page=show_problem&problem=3664)
+-   [UVa 760 - DNA Sequencing](http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=24&page=show_problem&problem=701)
+-   [UVa 1223 - Editor](http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=24&page=show_problem&problem=3664)
 -   [Codechef - Tandem](https://www.codechef.com/problems/TANDEM)
 -   [Codechef - Substrings and Repetitions](https://www.codechef.com/problems/ANUSAR)
 -   [Codechef - Entangled Strings](https://www.codechef.com/problems/TANGLED)
@@ -467,22 +454,22 @@ $\frac{n(n+1)}{2}-\sum\limits_{i=2}^nheight[i]$
 -   [Codeforces - Little Elephant and Strings](http://codeforces.com/problemset/problem/204/E)
 -   [SPOJ - Ada and Terramorphing](http://www.spoj.com/problems/ADAPHOTO/)
 -   [SPOJ - Ada and Substring](http://www.spoj.com/problems/ADASTRNG/)
--   [UVA - 1227 - The longest constant gene](https://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=3668)
+-   [UVa - 1227 - The longest constant gene](https://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=3668)
 -   [SPOJ - Longest Common Substring](http://www.spoj.com/problems/LCS/en/)
--   [UVA 11512 - GATTACA](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2507)
+-   [UVa 11512 - GATTACA](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2507)
 -   [LA 7502 - Suffixes and Palindromes](https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&Itemid=8&category=720&page=show_problem&problem=5524)
 -   [GYM - Por Costel and the Censorship Committee](http://codeforces.com/gym/100923/problem/D)
--   [UVA 1254 - Top 10](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=3695)
--   [UVA 12191 - File Recover](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=3343)
--   [UVA 12206 - Stammering Aliens](https://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=3358)
+-   [UVa 1254 - Top 10](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=3695)
+-   [UVa 12191 - File Recover](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=3343)
+-   [UVa 12206 - Stammering Aliens](https://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=3358)
 -   [Codechef - Jarvis and LCP](https://www.codechef.com/problems/INSQ16F)
 -   [LA 3943 - Liking's Letter](https://icpcarchive.ecs.baylor.edu/index.php?option=onlinejudge&Itemid=8&page=show_problem&problem=1944)
--   [UVA 11107 - Life Forms](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2048)
--   [UVA 12974 - Exquisite Strings](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=862&page=show_problem&problem=4853)
--   [UVA 10526 - Intellectual Property](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=1467)
--   [UVA 12338 - Anti-Rhyme Pairs](https://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=3760)
+-   [UVa 11107 - Life Forms](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2048)
+-   [UVa 12974 - Exquisite Strings](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=862&page=show_problem&problem=4853)
+-   [UVa 10526 - Intellectual Property](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=1467)
+-   [UVa 12338 - Anti-Rhyme Pairs](https://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=3760)
 -   [DevSkills Reconstructing Blue Print of Life](https://devskill.com/CodingProblems/ViewProblem/328)
--   [UVA 12191 - File Recover](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=3343)
+-   [UVa 12191 - File Recover](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=3343)
 -   [SPOJ - Suffix Array](http://www.spoj.com/problems/SARRAY/)
 -   [LA 4513 - Stammering Aliens](https://icpcarchive.ecs.baylor.edu/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2514)
 -   [SPOJ - LCS2](http://www.spoj.com/problems/LCS2/)
@@ -499,10 +486,10 @@ $\frac{n(n+1)}{2}-\sum\limits_{i=2}^nheight[i]$
 
 论文：
 
-1.  [\[2004\] 后缀数组 by. 徐智磊][1]
+1.  [\[2004\] 后缀数组 by. 许智磊][1]
 
 2.  [\[2009\] 后缀数组——处理字符串的有力工具 by. 罗穗骞][2]
 
-[1]: https://wenku.baidu.com/view/0dc03d2b1611cc7931b765ce0508763230127479.html "[2004] 后缀数组 by. 徐智磊"
+[1]: https://github.com/OI-wiki/libs/blob/master/%E9%9B%86%E8%AE%AD%E9%98%9F%E5%8E%86%E5%B9%B4%E8%AE%BA%E6%96%87/%E5%9B%BD%E5%AE%B6%E9%9B%86%E8%AE%AD%E9%98%9F2004%E8%AE%BA%E6%96%87%E9%9B%86/%E8%AE%B8%E6%99%BA%E7%A3%8A--%E5%90%8E%E7%BC%80%E6%95%B0%E7%BB%84.pdf "[2004] 后缀数组 by. 许智磊"
 
-[2]: https://wenku.baidu.com/view/5b886b1ea76e58fafab00374.html "[2009] 后缀数组——处理字符串的有力工具 by. 罗穗骞"
+[2]: https://github.com/OI-wiki/libs/blob/master/%E9%9B%86%E8%AE%AD%E9%98%9F%E5%8E%86%E5%B9%B4%E8%AE%BA%E6%96%87/%E5%9B%BD%E5%AE%B6%E9%9B%86%E8%AE%AD%E9%98%9F2009%E8%AE%BA%E6%96%87%E9%9B%86/11.%E7%BD%97%E7%A9%97%E9%AA%9E%E3%80%8A%E5%90%8E%E7%BC%80%E6%95%B0%E7%BB%84%E2%80%94%E2%80%94%E5%A4%84%E7%90%86%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%9C%89%E5%8A%9B%E5%B7%A5%E5%85%B7%E3%80%8B/%E5%90%8E%E7%BC%80%E6%95%B0%E7%BB%84%E2%80%94%E2%80%94%E5%A4%84%E7%90%86%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%9C%89%E5%8A%9B%E5%B7%A5%E5%85%B7.pdf "[2009] 后缀数组——处理字符串的有力工具 by. 罗穗骞"

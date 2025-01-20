@@ -28,7 +28,7 @@ $$
 
 证明：
 
-$B_{n+1}$ 是含有 $n+1$ 个元素集合的划分个数，设 $D_n$ 的集合为 $\{b_1,b_2,b_3,\dots,b_n\}$，$D_{n+1}$ 的集合为 $\{b_1,b_2,b_3,\dots,b_n,b_{n+1}\}$，那么可以认为 $D_{n+1}$ 是有 $D_{n}$ 增添了一个 $b_{n+1}$ 而产生的，考虑元素 $b_{n+1}$。
+$B_{n+1}$ 是含有 $n+1$ 个元素集合的划分个数，设 $B_n$ 的集合为 $\{b_1,b_2,b_3,\dots,b_n\}$，$B_{n+1}$ 的集合为 $\{b_1,b_2,b_3,\dots,b_n,b_{n+1}\}$，那么可以认为 $B_{n+1}$ 是有 $B_{n}$ 增添了一个 $b_{n+1}$ 而产生的，考虑元素 $b_{n+1}$。
 
 -   假如它被单独分到一类，那么还剩下 $n$ 个元素，这种情况下划分数为 $\dbinom{n}{n}B_{n}$;
 
@@ -74,8 +74,8 @@ $$
 ??? note "参考实现"
     === "C++"
         ```cpp
-        const int maxn = 2000 + 5;
-        int bell[maxn][maxn];
+        constexpr int MAXN = 2000 + 5;
+        int bell[MAXN][MAXN];
         
         void f(int n) {
           bell[0][0] = 1;
@@ -89,8 +89,10 @@ $$
     
     === "Python"
         ```python
-        maxn = 2000 + 5
-        bell = [[0 for i in range(maxn + 1)] for j in range(maxn + 1)]
+        MAXN = 2000 + 5
+        bell = [[0 for i in range(MAXN + 1)] for j in range(MAXN + 1)]
+        
+        
         def f(n):
             bell[0][0] = 1
             for i in range(1, n + 1):

@@ -10,14 +10,14 @@ jobs:
   celebrate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
           cache: pipenv
       - name: Install Python dependencies
         run: |
-          curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python3
+          pip install pipenv
           pipenv install
       - name: Celebrate
         run: pipenv run python scripts/celebration.py "${{ secrets.GITHUB_TOKEN }}"

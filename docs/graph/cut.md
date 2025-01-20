@@ -26,7 +26,7 @@ author: Ir1d, sshwy, GavinZhengOI, Planet6174, ouuan, Marcythm, ylxmf2005, 0xis-
 
 还需要另外一个数组 `low`，用它来存储不经过其父亲能到达的最小的时间戳。
 
-例如 `low[2]` 的话是 1，`low[5]` 和 `low[6]` 是 3。
+例如 `low[2]` 是 1，`low[5]` 和 `low[6]` 是 3。
 
 然后我们开始 DFS，我们判断某个点是否是割点的根据是：对于某个顶点 $u$，如果存在至少一个顶点 $v$（$u$ 的儿子），使得 $low_v \geq dfn_u$，即不能回到祖先，那么 $u$ 点为割点。
 
@@ -38,11 +38,14 @@ author: Ir1d, sshwy, GavinZhengOI, Planet6174, ouuan, Marcythm, ylxmf2005, 0xis-
 
 更新 `low` 的伪代码如下：
 
-```cpp
-如果 v 是 u 的儿子 low[u] = min(low[u], low[v]);
-否则
-low[u] = min(low[u], dfn[v]);
-```
+$$
+\begin{array}{ll}
+1 & \textbf{if } v \text{ is a son of } u \\
+2 & \qquad \text{low}_u = \min(\text{low}_u, \text{low}_v) \\
+3 & \textbf{else} \\
+4 & \qquad \text{low}_u = \min(\text{low}_u, \text{dfn}_v) \\
+\end{array}
+$$
 
 ### 例题
 
@@ -53,7 +56,7 @@ low[u] = min(low[u], dfn[v]);
     --8<-- "docs/graph/code/cut/cut_1.cpp"
     ```
 
-## 割边
+## 割边（无重边时）
 
 和割点差不多，叫做桥。
 
@@ -73,11 +76,11 @@ low[u] = min(low[u], dfn[v]);
 
 ### 实现
 
-下面代码实现了求割边，其中，当 `isbridge[x]` 为真时，`(father[x],x)` 为一条割边。
+下面代码实现了对 **无重边** 的无向图求割边，其中，当 `isbridge[x]` 为真时，`(father[x],x)` 为一条割边。
 
 === "C++"
     ```cpp
-    int low[MAXN], dfn[MAXN], dfs_clock;
+    int low[MAXN], dfn[MAXN], idx;
     bool isbridge[MAXN];
     vector<int> G[MAXN];
     int cnt_bridge;
@@ -85,9 +88,8 @@ low[u] = min(low[u], dfn[v]);
     
     void tarjan(int u, int fa) {
       father[u] = fa;
-      low[u] = dfn[u] = ++dfs_clock;
-      for (int i = 0; i < G[u].size(); i++) {
-        int v = G[u][i];
+      low[u] = dfn[u] = ++idx;
+      for (const auto &v : G[u]) {
         if (!dfn[v]) {
           tarjan(v, u);
           low[u] = min(low[u], low[v]);
@@ -95,7 +97,7 @@ low[u] = min(low[u], dfn[v]);
             isbridge[v] = true;
             ++cnt_bridge;
           }
-        } else if (dfn[v] < dfn[u] && v != fa) {
+        } else if (v != fa) {
           low[u] = min(low[u], dfn[v]);
         }
       }
@@ -104,16 +106,19 @@ low[u] = min(low[u], dfn[v]);
 
 === "Python"
     ```python
-    low = [0] * MAXN; dfn = [0] * MAXN; dfs_clock = 0
+    low = [0] * MAXN
+    dfn = [0] * MAXN
+    idx = 0
     isbridge = [False] * MAXN
     G = [[0 for i in range(MAXN)] for j in range(MAXN)]
     cnt_bridge = 0
     father = [0] * MAXN
     
+    
     def tarjan(u, fa):
         father[u] = fa
-        low[u] = dfn[u] = dfs_clock
-        dfs_clock = dfs_clock + 1
+        idx = idx + 1
+        low[u] = dfn[u] = idx
         for i in range(0, len(G[u])):
             v = G[u][i]
             if dfn[v] == False:
@@ -122,16 +127,60 @@ low[u] = min(low[u], dfn[v]);
                 if low[v] > dfn[u]:
                     isbridge[v] = True
                     cnt_bridge = cnt_bridge + 1
-            elif dfn[v] < dfn[u] and v != fa:
+            elif v != fa:
                 low[u] = min(low[u], dfn[v])
+    ```
+
+## 割边（有重边时）
+
+然而，上述无重边时的做法在有重边的无向图上是有问题的。
+
+因为两节点间可能不止有一条边，此时它们都不会是桥。
+
+### 过程
+
+一种思路是将参数 `fa` 改为刚刚走过的边的编号（每条边的编号一致）即可，即将「不用父节点更新」改为「不用来时的边更新」。
+
+另一种更简单的思路是设立一个标记判断是否已有一条边抵达父节点，标记后再访问到父节点时正常更新。
+
+下面代码实现了对可能 **有重边** 的无向图求割边。
+
+=== "C++"
+    ```cpp
+    int low[MAXN], dfn[MAXN], idx;
+    bool isbridge[MAXN];
+    vector<int> G[MAXN];
+    int cnt_bridge;
+    int father[MAXN];
+    
+    void tarjan(int u, int fa) {
+      bool flag = false;
+      father[u] = fa;
+      low[u] = dfn[u] = ++idx;
+      for (const auto &v : G[u]) {
+        if (!dfn[v]) {
+          tarjan(v, u);
+          low[u] = min(low[u], low[v]);
+          if (low[v] > dfn[u]) {
+            isbridge[v] = true;
+            ++cnt_bridge;
+          }
+        } else {
+          if (v != fa || flag)
+            low[u] = min(low[u], dfn[v]);
+          else
+            flag = true;
+        }
+      }
+    }
     ```
 
 ## 练习
 
 -   [P3388【模板】割点（割顶）](https://www.luogu.com.cn/problem/P3388)
--   [POJ2117 Electricity](https://vjudge.net/problem/POJ-2117)
--   [HDU4738 Caocao's Bridges](https://vjudge.net/problem/HDU-4738)
--   [HDU2460 Network](https://vjudge.net/problem/HDU-2460)
--   [POJ1523 SPF](https://vjudge.net/problem/POJ-1523)
+-   [POJ2117 Electricity](http://poj.org/problem?id=2117)
+-   [HDU4738 Caocao's Bridges](https://acm.hdu.edu.cn/showproblem.php?pid=4738)
+-   [HDU2460 Network](https://acm.hdu.edu.cn/showproblem.php?pid=2460)
+-   [POJ1523 SPF](http://poj.org/problem?id=1523)
 
 Tarjan 算法还有许多用途，常用的例如求强连通分量，缩点，还有求 2-SAT 的用途等。

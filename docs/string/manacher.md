@@ -66,7 +66,7 @@ $$
             d1[i] = 1
             while 0 <= i - d1[i] and i + d1[i] < n and s[i - d1[i]] == s[i + d1[i]]:
                 d1[i] += 1
-            
+        
             d2[i] = 0
             while 0 <= i - d2[i] - 1 and i + d2[i] < n and s[i - d2[i] - 1] == s[i + d2[i]]:
                 d2[i] += 1
@@ -126,7 +126,7 @@ $$
     }_\text{try moving here}
     $$
 
-    该图示显示出，尽管以 $j$ 为中心的回文串可能更长，以致于超出「外部」回文串，但在位置 $i$，我们只能利用其完全落在」外部」回文串内的部分。然而位置 $i$ 的答案可能比这个值更大，因此接下来我们将运行朴素算法来尝试将其扩展至「外部」回文串之外，也即标识为 "try moving here" 的区域。
+    该图示显示出，尽管以 $j$ 为中心的回文串可能更长，以致于超出「外部」回文串，但在位置 $i$，我们只能利用其完全落在「外部」回文串内的部分。然而位置 $i$ 的答案可能比这个值更大，因此接下来我们将运行朴素算法来尝试将其扩展至「外部」回文串之外，也即标识为 "try moving here" 的区域。
 
 最后，仍有必要提醒的是，我们应当记得在计算完每个 $d_1[i]$ 后更新值 $(l, r)$。
 
@@ -228,7 +228,7 @@ Manacher 算法的另一部分显然也是线性的，因此总复杂度为 $O(n
 
 ## 练习题目
 
--   [UVA #11475 "Extend to Palindrome"](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2470)
+-   [UVa #11475 "Extend to Palindrome"](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=2470)
 -   [「国家集训队」最长双回文串](https://www.luogu.com.cn/problem/P4555)
 
 ***
