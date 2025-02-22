@@ -1,4 +1,4 @@
-author: 2323122, aofall, AtomAlpaca, Bocity, CoelacanthusHex, countercurrent-time, Early0v0, Enter-tainer, fearlessxjdx, Great-designer, H-J-Granger, hsfzLZH1, iamtwz, Ir1d, ksyx, Marcythm, NachtgeistW, ouuan, Persdre, shuzhouliu, StudyingFather, SukkaW, Tiphereth-A, wsyhb, Yesphet, yuhuoji
+author: 2323122, aofall, AtomAlpaca, Bocity, CoelacanthusHex, countercurrent-time, Early0v0, Enter-tainer, fearlessxjdx, Great-designer, H-J-Granger, hsfzLZH1, iamtwz, Ir1d, ksyx, Marcythm, NachtgeistW, ouuan, Persdre, shuzhouliu, StudyingFather, SukkaW, Tiphereth-A, wsyhb, Yesphet, yuhuoji, lingkerio, bililateral, q-wind
 
 ## 定义
 
@@ -27,6 +27,9 @@ author: 2323122, aofall, AtomAlpaca, Bocity, CoelacanthusHex, countercurrent-tim
       // 维护其他信息，如高度，节点数量等
       int size;   // 当前节点为根的子树大小
       int count;  // 当前节点的重复数量
+    
+      TreeNode(int value)
+          : key(value), size(1), count(1), left(nullptr), right(nullptr) {}
     };
     ```
 
@@ -120,8 +123,6 @@ author: 2323122, aofall, AtomAlpaca, Bocity, CoelacanthusHex, countercurrent-tim
 
 -   若 `root` 的权值小于 `value`，在 `root` 的右子树中插入权值为 `value` 的节点。
 
--   若 `root` 的权值小于 `value`，在 `root` 的右子树中插入权值为 `value` 的节点。
-
 时间复杂度为 $O(h)$。
 
 ???+ note "实现"
@@ -137,6 +138,8 @@ author: 2323122, aofall, AtomAlpaca, Bocity, CoelacanthusHex, countercurrent-tim
       } else {
         root->count++;  // 节点值相等，增加重复数量
       }
+      root->size = root->count + (root->left ? root->left->size : 0) +
+                   (root->right ? root->right->size : 0);  // 更新节点的子树大小
       return root;
     }
     ```
@@ -188,24 +191,27 @@ author: 2323122, aofall, AtomAlpaca, Bocity, CoelacanthusHex, countercurrent-tim
             TreeNode* successor = findMinNode(root->right);
             root->key = successor->key;
             root->count = successor->count;  // 更新重复数量
+            // 当 successor->count > 1时，也应该删除该节点，否则
+            // 后续的删除只会减少重复数量
+            successor->count = 1;
             root->right = remove(root->right, successor->key);
           }
         }
       }
+      // 继续维护size，不写成 --root->size;
+      // 是因为value可能不在树中，从而可能未发生删除
+      root->size = root->count + (root->left ? root->left->size : 0) +
+                   (root->right ? root->right->size : 0);
       return root;
     }
     
-    ```
-    
-    //此处以右子树的最小值为例
-    TreeNode\* findMinNode(TreeNode\* root) {
-    while (root->left != nullptr) {
-    root = root->left;
+    // 此处以右子树的最小值为例
+    TreeNode* findMinNode(TreeNode* root) {
+      while (root->left != nullptr) {
+        root = root->left;
+      }
+      return root;
     }
-    return root;
-    }
-    
-    ```
     ```
 
 ### 求元素的排名
@@ -222,8 +228,8 @@ author: 2323122, aofall, AtomAlpaca, Bocity, CoelacanthusHex, countercurrent-tim
       if (root == nullptr) return 0;
       if (root->key == v) return (root->left ? root->left->size : 0) + 1;
       if (root->key > v) return queryRank(root->left, v);
-      return queryRank(root->right, v) +
-             (root->left ? root->left->size + root->count : 0);
+      return queryRank(root->right, v) + (root->left ? root->left->size : 0) +
+             root->count;
     }
     ```
 
@@ -250,7 +256,7 @@ author: 2323122, aofall, AtomAlpaca, Bocity, CoelacanthusHex, countercurrent-tim
         if (k == 1) return root->key;
       }
       return querykth(root->right,
-                      k - (root->left ? root->left->size + root->count : 0));
+                      k - (root->left ? root->left->size : 0) - root->count);
     }
     ```
 
@@ -260,7 +266,7 @@ author: 2323122, aofall, AtomAlpaca, Bocity, CoelacanthusHex, countercurrent-tim
 
 关于查找效率，如果一棵树的高度为 $h$，在最坏的情况，查找一个关键字需要对比 $h$ 次，查找时间复杂度（也为平均查找长度 ASL，Average Search Length）不超过 $O(h)$。一棵理想的二叉搜索树所有操作的时间可以缩短到 $O(\log n)$（n 是节点总数）。
 
-然而 $O(h)$ 的时间复杂度仅为理想情况。在最坏情况下，搜索树有可能退化为链表。想象一棵每个结点只有右孩子的二叉搜索树，那么它的性质就和链表一样，所有操作（增删改查）的时间是 $O(n)$。
+然而 $O(\log n)$ 的时间复杂度仅为理想情况。在最坏情况下，搜索树有可能退化为链表。想象一棵每个结点只有右孩子的二叉搜索树，那么它的性质就和链表一样，所有操作（增删改查）的时间是 $O(n)$。
 
 可以发现操作的复杂度与树的高度 $h$ 有关。由此引出了平衡树，通过一定操作维持树的高度（平衡性）来降低操作的复杂度。
 

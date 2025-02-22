@@ -7,7 +7,7 @@ author: countercurrent-time, StudyingFather
 交互题的特殊错误：
 
 -   选手每一次输出后都需要刷新缓冲区，否则会引起 Idleness limit exceeded 错误。另外，如果题目含多组数据并且程序可以在未读入所有数据前就知道答案，也仍然要读入所有数据，否则同样会因为读入混乱引起 ILE（可以一次提出多次询问，一次接收所有询问的回答）。同时尽量不要使用快读。
--   如果程序查询次数过多，则在 Codeforces 上会给出 Wrong Answer 的评测结果（不过评测系统会说明 Wrong Answer 的原因），而 UVA 会给出 Protocol Limit Exceeded (PLE) 的评测结果。
+-   如果程序查询次数过多，则在 Codeforces 上会给出 Wrong Answer 的评测结果（不过评测系统会说明 Wrong Answer 的原因），而 UVa 会给出 Protocol Limit Exceeded (PLE) 的评测结果。
 -   如果程序交互格式错误，UVa 会给出 Protocol Violation (PV) 的评测结果。
 
 由于交互题输入输出较为繁琐，所以建议分别封装输入和输出函数。
@@ -16,11 +16,11 @@ author: countercurrent-time, StudyingFather
 
 例题：
 
--   [CF679A Bear and Prime 100](https://www.luogu.com.cn/problem/CF679A)
--   [CF843B Interactive LowerBound](https://www.luogu.com.cn/problem/CF843B)
+-   [CF679A Bear and Prime 100](https://codeforces.com/problemset/problem/679/A)
+-   [CF843B Interactive LowerBound](https://codeforces.com/problemset/problem/843/B)
 -   [UOJ206\[APIO2016\]Gap](http://uoj.ac/problem/206)
--   [CF750F New Year and Finding Roots](https://www.luogu.com.cn/problem/CF750F)
--   [UVA12731 太空站之谜 Mysterious Space Station](https://www.luogu.com.cn/problem/UVA12731)
+-   [CF750F New Year and Finding Roots](https://codeforces.com/problemset/problem/750/F)
+-   [UVa12731 太空站之谜 Mysterious Space Station](https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=823&page=show_problem&problem=4584)
 
 ## CF679A Bear and Prime 100
 
@@ -31,8 +31,8 @@ author: countercurrent-time, StudyingFather
 ??? 参考代码
     ```cpp
     #include <cstdio>
-    const int prime[] = {2,  3,  4,  5,  7,  9,  11, 13, 17, 19,
-                         23, 25, 29, 31, 37, 41, 43, 47, 49};
+    constexpr int prime[] = {2,  3,  4,  5,  7,  9,  11, 13, 17, 19,
+                             23, 25, 29, 31, 37, 41, 43, 47, 49};
     int cnt = 0;
     char res[5];
     
@@ -63,7 +63,7 @@ author: countercurrent-time, StudyingFather
     #include <algorithm>
     #include <cstdio>
     #include <cstdlib>
-    const int N = 50005;
+    constexpr int N = 50005;
     int n, start, x;
     int a[N];
     
@@ -193,7 +193,7 @@ $h \le 4$ 时可以直接暴力枚举。然而 $h > 4$ 时需要很高效的遍�
     #include <queue>
     #include <vector>
     using namespace std;
-    const int N = 256 + 5;
+    constexpr int N = 256 + 5;
     int T, h, chance;
     bool ok;
     vector<int> to[N], path;
@@ -272,13 +272,13 @@ $h \le 4$ 时可以直接暴力枚举。然而 $h > 4$ 时需要很高效的遍�
           dep = h - (h - dep + path.size()) / 2;
           root = path.at((path.size() - (h - dep)) - 1);
         }
-        if (ok == false) bfs(root, 1 << (dep - 2));
+        if (!ok) bfs(root, 1 << (dep - 2));
       }
       return 0;
     }
     ```
 
-## UVA12731 太空站之谜 Mysterious Space Station
+## UVa12731 太空站之谜 Mysterious Space Station
 
 由于唯一的反馈是移动时是否撞墙，所以我们应该考虑在机器人不走丢的情况下，尽量接近墙边走路，这样有几个好处：
 
@@ -448,7 +448,7 @@ $h \le 4$ 时可以直接暴力枚举。然而 $h > 4$ 时需要很高效的遍�
         else
           ok = false;
       }
-      if (ok == false) undo(st);
+      if (!ok) undo(st);
       return ok;
     }
     
@@ -484,7 +484,7 @@ $h \le 4$ 时可以直接暴力枚举。然而 $h > 4$ 时需要很高效的遍�
       v.clear();
       bfs(s, t, v);
       for (int i : v)
-        if (walk(i, st) == false) return false;
+        if (!walk(i, st)) return false;
       return true;
     }
     
@@ -518,7 +518,7 @@ $h \le 4$ 时可以直接暴力枚举。然而 $h > 4$ 时需要很高效的遍�
               ok = false;
             else if (!make_sure(point(i, j - 1), -1))
               ok = false;
-            if (ok == false) {
+            if (!ok) {
               vis[cnt++] = std::make_pair(point(i, j), false);
               a[i][j] = Gate;
               for (int k = 0; k < 8; k++) {
@@ -535,9 +535,9 @@ $h \le 4$ 时可以直接暴力枚举。然而 $h > 4$ 时需要很高效的遍�
       int cnt = 0;
       std::stack<int> st;
       for (int i = 0; i < k * 2; i++)
-        if (vis[i].second == false)
-          for (int j = 0; vis[i].second == false && j < k * 2; j++)
-            if (j != i && vis[j].second == false) {
+        if (!vis[i].second)
+          for (int j = 0; !vis[i].second && j < k * 2; j++)
+            if (j != i && !vis[j].second) {
               bool ok = true;
               if (!move(start, vis[i].first.side(2), st))
                 ok = false;
@@ -545,7 +545,7 @@ $h \le 4$ 时可以直接暴力枚举。然而 $h > 4$ 时需要很高效的遍�
                 ok = false;
               else if (!make_sure(vis[j].first.side(0), -1))
                 ok = false;
-              if (ok == true) {
+              if (ok) {
                 ans[cnt++] = std::make_pair(vis[i].first, vis[j].first);
                 vis[i].second = vis[j].second = true;
               }

@@ -48,7 +48,7 @@ int binary_search(int start, int end, int key) {
 ```
 
 ???+ note
-    参考 [编译优化 #位运算代替乘法](/lang/optimizations/#%E4%BD%8D%E8%BF%90%E7%AE%97%E4%BB%A3%E6%9B%BF%E4%B9%98%E6%B3%95)，对于 $n$ 是有符号数的情况，当你可以保证 $n\ge 0$ 时，`n >> 1` 比 `n / 2` 指令数更少。
+    参考 [编译优化 #位运算代替乘法](../lang/optimizations.md#%E4%BD%8D%E8%BF%90%E7%AE%97%E4%BB%A3%E6%9B%BF%E4%B9%98%E6%B3%95)，对于 $n$ 是有符号数的情况，当你可以保证 $n\ge 0$ 时，`n >> 1` 比 `n / 2` 指令数更少。
 
 ### 最大值最小化
 
@@ -218,7 +218,7 @@ $$
 2 & \textbf{Output. } \text{The maximum value of } f(x) \text{ and the value of } x \text{ at that time } \text{.} \\
 3 & \textbf{Method. } \\
 4 & \textbf{while } r - l > \varepsilon\\
-5 & \qquad mid\gets \frac{lmid+rmid}{2}\\
+5 & \qquad mid\gets \frac{l+r}{2}\\
 6 & \qquad lmid\gets mid - \varepsilon \\
 7 & \qquad rmid\gets mid + \varepsilon \\
 8 & \qquad \textbf{if } f(lmid) < f(rmid) \\
@@ -232,7 +232,7 @@ $$
 
 ```cpp
 while (r - l > eps) {
-  mid = (lmid + rmid) / 2;
+  mid = (l + r) / 2;
   lmid = mid - eps;
   rmid = mid + eps;
   if (f(lmid) < f(rmid))
@@ -263,8 +263,8 @@ while (r - l > eps) {
 
 ### 习题
 
--   [Uva 1476 - Error Curves](https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=447&page=show_problem&problem=4222)
--   [Uva 10385 - Duathlon](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=15&page=show_problem&problem=1326)
+-   [UVa 1476 - Error Curves](https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=447&page=show_problem&problem=4222)
+-   [UVa 10385 - Duathlon](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=15&page=show_problem&problem=1326)
 -   [UOJ 162 -【清华集训 2015】灯泡测试](https://uoj.ac/problem/162)
 -   [洛谷 P7579 -「RdOI R2」称重（weigh）](https://www.luogu.com.cn/problem/P7579)
 

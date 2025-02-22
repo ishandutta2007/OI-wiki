@@ -4,11 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-mkdocs = "==1.4.2"
-pymdown-extensions = "*"
+mkdocs = "==1.5.3"
+pymdown-extensions = "==10.3.1"
 pygments = "*"
 beautifulsoup4 = "*"
 requests = "*"
+python-markdown-document-offsets-injection-extension = "==0.5.12"
+markdown = "==3.6"
 
 [dev-packages]
 

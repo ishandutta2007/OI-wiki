@@ -108,6 +108,20 @@ $f(n)=\omega(g(n))$，当且仅当对于任意给定的正数 $c$，$\exists n_0
                 print("hello world")
     ```
 
+=== "Java"
+    ```java
+    int n, m;
+    n = input.nextInt();
+    m = input.nextInt();
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            for (int k = 0; k < m; ++k) {
+                System.out.println("hello world");
+            }
+        }
+    }
+    ```
+
 如果以输入的数值 $n$ 和 $m$ 的大小作为数据规模，则上面这段代码的时间复杂度为 $\Theta(n^2m)$。
 
 ### DFS
@@ -120,7 +134,7 @@ $f(n)=\omega(g(n))$，当且仅当对于任意给定的正数 $c$，$\exists n_0
 
 === "C++"
     ```cpp
-    const int N = 100000;
+    constexpr int N = 100000;
     for (int i = 0; i < N; ++i) {
       std::cout << "hello world\n";
     }
@@ -131,6 +145,14 @@ $f(n)=\omega(g(n))$，当且仅当对于任意给定的正数 $c$，$\exists n_0
     N = 100000
     for i in range(0, N):
         print("hello world")
+    ```
+
+=== "Java"
+    ```java
+    final int N = 100000;
+    for (int i = 0; i < N; ++i) {
+        System.out.println("hello world");
+    }
     ```
 
 如果 $N$ 的大小不被看作输入规模，那么这段代码的时间复杂度就是 $O(1)$。
@@ -151,7 +173,7 @@ $$
 那么
 
 $$
-T(n) = \begin{cases}\Theta(n^{\log_b a}) & f(n) = O(n^{\log_b a-\epsilon}),\epsilon > 0 \\ \Theta(f(n)) & f(n) = \Omega(n^{\log_b a+\epsilon}),\epsilon\ge 0\\ \Theta(n^{\log_b a}\log^{k+1} n) & f(n)=\Theta(n^{\log_b a}\log^k n),k\ge 0 \end{cases}
+T(n) = \begin{cases}\Theta(n^{\log_b a}) & f(n) = O(n^{\log_b (a)-\epsilon}),\epsilon > 0 \\ \Theta(f(n)) & f(n) = \Omega(n^{\log_b (a)+\epsilon}),\epsilon\ge 0\\ \Theta(n^{\log_b a}\log^{k+1} n) & f(n)=\Theta(n^{\log_b a}\log^k n),k\ge 0 \end{cases}
 $$
 
 需要注意的是，这里的第二种情况还需要满足 regularity condition, 即 $a f(n/b) \leq c f(n)$，for some constant $c < 1$ and sufficiently large $n$。
@@ -177,51 +199,17 @@ $$
 
 下面举几个例子来说明主定理如何使用。
 
-例如 $T(n) = T\left(\frac{n}{2}\right) + 1$，那么 $a=1, b=2, {\log_2 1} = 0$，那么 $\epsilon$ 可以取值为 $0$，从而满足第一种情况，所以 $T(n) = \Theta(\log n)$。
+1.  $T(n) = 2T\left(\frac{n}{2}\right) + 1$，那么 $a=2, b=2, {\log_2 2} = 1$，那么 $\epsilon$ 可以取值在 $(0, 1]$ 之间，从而满足第一种情况，所以 $T(n) = \Theta(n)$。
 
-又例如 $T(n) = T\left(\frac{n}{2}\right) + n$，那么 $a=1, b=2, {\log_2 1} = 0$，那么 $\epsilon$ 可以取值为 $0.5$，从而满足第二种情况，所以 $T(n) = \Theta(n)$。
+2.  $T(n) = T\left(\frac{n}{2}\right) + n$，那么 $a=1, b=2, {\log_2 1} = 0$，那么 $\epsilon$ 可以取值在 $(0, 1]$ 之间，从而满足第二种情况，所以 $T(n) = \Theta(n)$。
 
-再例如 $T(n) = T\left(\frac{n}{2}\right) + {\log n}$，那么 $a=1, b=2, {\log_2 1}=0$，那么 $k$ 可以取值为 $1$，从而满足第三种情况，所以 $T(n) = \Theta(\log^2 n)$。
+3.  $T(n) = T\left(\frac{n}{2}\right) + {\log n}$，那么 $a=1, b=2, {\log_2 1}=0$，那么 $k$ 可以取值为 $1$，从而满足第三种情况，所以 $T(n) = \Theta(\log^2 n)$。
+
+4.  $T(n) = T\left(\frac{n}{2}\right) + 1$，那么 $a=1, b=2, {\log_2 1} = 0$，那么 $k$ 可以取值为 $0$，从而满足第三种情况，所以 $T(n) = \Theta(\log n)$。
 
 ## 均摊复杂度
 
-算法往往是会对内存中的数据进行修改的，而同一个算法的多次执行，就会通过对数据的修改而互相影响。
-
-例如快速排序中的「按大小分类」操作，单次执行的最坏时间复杂度，看似是 $O(n)$ 的，但是由于快排的分治过程，先前的「分类」操作每次都减小了数组长度，所以实际的总复杂度 $O(n \log n)$，分摊在每一次「分类」操作上，是 $O(\log n)$。
-
-多次操作的总复杂度除以操作次数，就是这种操作的 **均摊复杂度**。
-
-## 势能分析
-
-势能分析，是一种求均摊复杂度上界的方法。
-
-求均摊复杂度，关键是表达出先前操作对当前操作的影响。势能分析用一个函数来表达此种影响。
-
-定义「状态」$S$：即某一时刻的所有数据。*在快排的例子中，一个「状态」就是当前过程需要排序的下标区间*
-
-定义「初始状态」$S_0$：即未进行任何操作时的状态。*在快排的例子中，「初始状态」就是整个数组*
-
-假设存在从状态到数的函数 $F$，且对于任何状态 $S$，$F(S) \geq F(S_0)$，则有以下推论：
-
-设 $S_1,S_2, \cdots ,S_m$ 为从 $S_0$ 开始连续做 $m$ 次操作所得的状态序列，$c_i$ 为第 $i$ 次操作的时间开销。
-
-记 $p_i = c_i + F(S_i) - F(S_{i-1})$，则 $m$ 次操作的总时间花销为
-
-$$
-\sum_{i=1}^m p_i + F(S_0) - F(S_m)
-$$
-
-（正负相消，证明显然）
-
-又因为 $F(S) \geq F(S_0)$，所以有
-
-$$
-\sum_{i=1}^m p_i \geq \sum_{i=1}^m c_i
-$$
-
-因此，若 $p_i = O(T(n))$，则 $O(T(n))$ 是均摊复杂度的一个上界。
-
-势能分析在实际应用中有很多技巧，在此不详细展开。
+详情可见 [均摊复杂度](./amortized-analysis.md)。
 
 ## 空间复杂度
 

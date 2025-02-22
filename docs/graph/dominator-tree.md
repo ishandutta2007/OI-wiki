@@ -99,7 +99,7 @@ $$
 
 翻译成人话就是，一个点的支配点的点集为它所有前驱结点的支配点集的交集，再并上它本身。根据这个方程将每个结点上的支配点集不断迭代直至答案不变即可。
 
-为了提高效率，我们希望每轮迭代时，当前迭代的结点的所有前驱结点尽可能都已经执行完了这次迭代，因此我们要利用深度有限排序得出这个图的逆后序，根据这个顺序进行迭代。
+为了提高效率，我们希望每轮迭代时，当前迭代的结点的所有前驱结点尽可能都已经执行完了这次迭代，因此我们要利用深度优先排序得出这个图的逆后序，根据这个顺序进行迭代。
 
 下面给出核心代码的参考实现。这里需要预先处理每个点的前驱结点集和图的逆后序，但这不是本文讨论的主要内容，故这里不提供参考实现。
 
@@ -185,6 +185,9 @@ void getidom() {
 
 我们发现 DAG 有一个很好的性质：根据拓扑序求解，先求得的解不会对后续的解产生影响。我们可以利用这个特点快速求得 DAG 的支配树。
 
+???+ warning "提醒"
+    值得注意的是此处的 DAG 只能有一个起点，如果有多个起点，受起点支配的点在支配树上出现有多个父亲的情况，从而使支配关系不能简单的用支配树来表达。
+
 **引理 6：** 在有向图上，$v\ dom\ u$ 当且仅当 $\forall w \in pre(u), v\ dom \ w$。
 
 **证明：** 首先来证明充分性。考虑任意一条从 $s$ 到 $u$ 的路径都一定经过一个结点 $w \in pre(u)$，而 $v$ 支配这个结点，因此任意一条从 $s$ 到 $u$ 的路径都一定经过 $v$，因此我们得到 $v \ dom \ u$。
@@ -197,16 +200,12 @@ void getidom() {
 
 ```c++
 std::stack<int> sta;
-vector<int> e[N], g[N], tree[N];  // g 是原图的反图, tree 是支配树
-int in[N], tpn[N], dep[N], idom[N];
+std::vector<int> e[N], g[N], tree[N];  // g 是原图的反图，tree 是支配树
+int n, s, in[N], tpn[N], dep[N], idom[N];  // n 为总点数，s 为起始点，in 为入度
 int fth[N][17];
 
-void topo() {
-  for (int i = 1; i <= n; ++i) {
-    if (!in[i]) {
-      sta.push(i);
-    }
-  }
+void topo(int s) {
+  sta.push(s);
   while (!sta.empty()) {
     int u = sta.top();
     sta.pop();
@@ -242,21 +241,26 @@ int lca(int u, int v) {
 }
 
 void build() {
-  topo();
+  topo(s);
+  for (int i = 1; i <= n; ++i)
+    for (int j = 0; j <= 15; ++j) fth[i][j] = s;
   for (int i = 1; i <= n; ++i) {
-    int u = tpn[i], v = g[u][0];
-    for (int j = 1, q = g[u].size(); j < q; ++j) {
-      v = lca(v, g[u][j]);
-    }
-    idom[u] = v;
-    tree[v].push_back(u);
-    fth[u][0] = v;
-    dep[u] = dep[v] + 1;
-    for (int i = 1; i <= 15; ++i) {
-      fth[u][i] = fth[fth[u][i - 1]][i - 1];
+    int u = tpn[i];
+    if (g[u].size()) {
+      int v = g[u][0];
+      for (int j = 1, q = g[u].size(); j < q; ++j) {
+        v = lca(v, g[u][j]);
+      }
+      tree[v].push_back(u);
+      fth[u][0] = v;
+      dep[u] = dep[v] + 1;
+      for (int i = 1; i <= 15; ++i) {
+        fth[u][i] = fth[fth[u][i - 1]][i - 1];
+      }
     }
   }
 }
+
 ```
 
 ### Lengauer–Tarjan 算法
@@ -285,7 +289,7 @@ $sdom(u) = \min(v|\exists v=v_0 \rightarrow v_1 \rightarrow\dots \rightarrow v_k
 
 **引理 9：** 对于任意结点 $u$，$sdom(u)$ 是其在 $T$ 上的祖先。
 
-**证明：** 假设 $sdom(u)$ 不是 $u$ 的祖先，那么 $fa(sdom(u))$ 也一定满足成为半支配点的条件，且 $fa(sdom(u)) < sdom(u)$，这与 $sdom(u)$ 的定义矛盾。
+**证明：** 假设 $sdom(u)$ 不是 $u$ 的祖先，那么 $sdom(u)$ 不可能连向任何 $\mathrm{dfs}$ 序大于等于 $u$ 的结点（否则这个点应在 $sdom(u)$ 的子树内而非其他子树内），矛盾。
 
 **引理 10：** 对于任意结点 $u$，$idom(u)$ 是 $sdom(u)$ 的祖先。
 
@@ -297,13 +301,13 @@ $sdom(u) = \min(v|\exists v=v_0 \rightarrow v_1 \rightarrow\dots \rightarrow v_k
 
 根据以上引理，我们可以得到以下定理：
 
-**定理 1：** 一个点 $u$ 的半支配点是其前驱与其支配点在 $T$ 上的，大于 $u$ 的所有祖先的半支配点中最小的节点。形式化地说，$sdom(u)=\min(\{v|\exists v \rightarrow u, v < u) \} \cup \{sdom(w) | w > u\ and\ \exists w \rightarrow \dots \rightarrow v \rightarrow u \})$。
+**定理 1：** 一个点 $u$ 的半支配点是其前驱与其支配点在 $T$ 上的，大于 $u$ 的所有祖先的半支配点中最小的节点。形式化地说，$sdom(u)=\min(\{v|\exists v \rightarrow u, v < u \} \cup \{sdom(w) | w > u\ and\ \exists w \rightarrow \dots \rightarrow v \rightarrow u \})$。
 
 **证明：** 令 $x$ 等于上式右侧。
 
 我们首先证明 $sdom(u) \le x$。根据引理 7 我们知道这个命题等价于证明上述的两种都满足成为半支配点的条件。$x$ 是 $u$ 的前驱时的情况是显然的，对于后半部分，我们考虑将半支配点定义中所述路径 $x=v_0\rightarrow\dots\rightarrow v_j=w$ 和 $T$ 上的一条满足 $\forall i\in[j, k-1], v_i\ge w > u$ 的路径 $w=v_j \rightarrow\dots\rightarrow v_k=v$ 以及路径 $v \rightarrow u$ 拼接，从而我们构造出一条满足半支配点定义的路径。
 
-然后我们证明 $sdom(u)\ge x$。考虑 $u$ 到其半支配点的定义中所述路径 $sdom(u)=v_0\rightarrow v_1 \rightarrow\dots\rightarrow v_k=u$。不难看出 $k=1$ 和 $k > 1$ 分别对应了定义中的两个选取方法。若 $k = 1$，则存在有向边 $sdom(u) \rightarrow u$，根据引理 7 即可得证；若 $k>1$，令 $j$ 是满足 $  j\ge 1 $ 且 $v_j$ 是 $v_{k-1}$ 在 $T$ 上祖先的最小数。考虑到 $k$ 满足上述条件，这样的 $j$ 一定存在。
+然后我们证明 $sdom(u)\ge x$。考虑 $u$ 到其半支配点的定义中所述路径 $sdom(u)=v_0\rightarrow v_1 \rightarrow\dots\rightarrow v_k=u$。不难看出 $k=1$ 和 $k > 1$ 分别对应了定义中的两个选取方法。若 $k = 1$，则存在有向边 $sdom(u) \rightarrow u$，根据引理 7 即可得证；若 $k>1$，令 $j$ 是满足 $j \ge 1$ 且 $v_j$ 是 $v_{k-1}$ 在 $T$ 上祖先的最小数。考虑到 $k$ 满足上述条件，这样的 $j$ 一定存在。
 
 考虑证明 $v_0 \rightarrow \dots \rightarrow v_j$ 是满足成为 $v_j$ 半支配点条件的一条路径，即证明 $\forall i \in [1, j), v_i>v_j$。若不是，则令 $i$ 为满足 $v_i < v_j$ 中使 $v_i$ 最小的数，根据引理 11 我们知道 $v_i$ 是 $v_j$ 的祖先，这和 $j$ 的定义矛盾。于是 $sdom(v_j)\le sdom(u)$。综上 $sdom(u) \le x$，故 $x=sdom(u)$。
 

@@ -127,17 +127,17 @@ class Vector {
 
   Vector(int _x, int _y) : x(_x), y(_y) {}
 
-  int operator*(const Vector& other) { return x * other.x + y * other.y; }
+  int operator*(const Vector& other) const { return x * other.x + y * other.y; }
 
-  Vector operator+(const Vector&);
-  Vector operator-(const Vector&);
+  Vector operator+(const Vector&) const;
+  Vector operator-(const Vector&) const;
 };
 
-Vector Vector::operator+(const Vector& other) {
+Vector Vector::operator+(const Vector& other) const {
   return Vector(x + other.x, y + other.y);
 }
 
-Vector Vector::operator-(const Vector& other) {
+Vector Vector::operator-(const Vector& other) const {
   return Vector(x - other.x, y - other.y);
 }
 
@@ -156,14 +156,16 @@ Vector Vector::operator-(const Vector& other) {
 
 对于自定义的类，如果重载了某些运算符（一般来说只需要重载 `<` 这个比较运算符），便可以使用相应的 STL 容器或算法，如 [`sort`](../basic/stl-sort.md)。
 
-*如要了解更多，参见「参考资料」第四条。*
+如要了解更多，可参见「参考资料」第四条。
 
 ??? note "可以被重载的运算符"
-    ```cpp
-    = +-* / = % += -= *= /= %= <> == != <= >= & | !^~ &= |= ^=
-        //----------
-        << <<= >> >>= ++--&& || [](),
-        ->*->new delete new[] delete[]
+    ```text
+    +       -       *       /       %       ^       &
+    |       ~       !       =       <       >       +=
+    -=      *=      /=      %=      ^=      &=      |=
+    <<      >>      >>=     <<=     ==      !=      <=
+    >=      &&      ||      ++      --      ,       ->*
+    ->      ()      []      new     new []  delete  delete []
     ```
 
 ### 在实例化变量时设定初始值
@@ -192,7 +194,7 @@ class Object {
 
 若无显式的构造函数，则编译器认为该类有隐式的默认构造函数。换言之，若无定义任何构造函数，则编译器会自动生成一个默认构造函数，并会根据成员元素的类型进行初始化（与定义 内置类型 变量相同）。
 
-在这种情况下，成员元素都是未初始化的，访问未初始化的变量的结果是未定义的（也就是说并不知道会返回和值）。
+在这种情况下，成员元素都是未初始化的，访问未初始化的变量的结果是未定义的（也就是说并不知道会返回何值）。
 
 如果需要自定义初始化的值，可以再定义（或重载）构造函数。
 
