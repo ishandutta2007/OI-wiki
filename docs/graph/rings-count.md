@@ -28,7 +28,7 @@
     
     所以定向后图肯定不存在环。
     
-    事实上，上述定向规则满足严格偏序的条件，所以按此规则构造的图（也即该偏序的 Hasse 图）一定是一个 DAG。
+    事实上，可以根据上述定向规则构造一个 [偏序](../math/order-theory.md#二元关系)，所以按此规则构造的图（也即该偏序的 [Hasse 图](../math/order-theory.md#偏序集的可视化表示hasse-图)）一定是一个 DAG。
 
 枚举 $u$ 和 $u$ 指向的点 $v$，再在 $v$ 指向的点中枚举 $w$，检验 $u$ 是否与 $w$ 相连即可。
 
@@ -54,7 +54,7 @@
 
 ### 例题 2
 
-???+ note "[HDU 6184 Counting Stars](https://vjudge.net/problem/HDU-6184)"
+???+ note "[HDU 6184 Counting Stars](https://acm.hdu.edu.cn/showproblem.php?pid=6184)"
     给定一张有 $n$ 个点和 $m$ 条边的无向图，求下面图形的出现次数。
     
     ![](./images/rings-count1.svg)
@@ -85,38 +85,9 @@
 
 另外，度数相同的结点的排名将不相同，并且需要注意判断 $a\neq c$。
 
-???+ note "示例代码"
+???+ note " 示例代码（[LibreOJ P191 无向图四元环计数](https://loj.ac/p/191)）"
     ```cpp
-    bool cmp(int x, int y) {
-      if (deg[x] != deg[y])
-        return deg[x] < deg[y];
-      else
-        return x < y;
-    }
-    
-    for (int i = 1; i <= n; i++) x[i] = i;
-    sort(x + 1, x + 1 + n, cmp);
-    for (int i = 1; i <= n; i++) rnk[x[i]] = i;
-    for (int a = 1; a <= n; a++) {
-      for (int i = head[a]; i; i = edge[i].nxt) {
-        int b = edge[i].to;
-        if (rnk[b] > rnk[a]) continue;
-        for (int j = head[b]; j; j = edge[j].nxt) {
-          int c = edge[j].to;
-          if (rnk[c] >= rnk[a]) continue;
-          total += cnt[c]++;
-        }
-      }
-      for (int i = head[a]; i; i = edge[i].nxt) {
-        int b = edge[i].to;
-        if (rnk[b] > rnk[a]) continue;
-        for (int j = head[b]; j; j = edge[j].nxt) {
-          int c = edge[j].to;
-          if (rnk[c] >= rnk[a]) continue;
-          cnt[c] = 0;
-        }
-      }
-    }
+    --8<-- "docs/graph/code/rings-count/rings-count_4.cpp"
     ```
 
 ### 例题 3
@@ -152,7 +123,7 @@
 
 ??? note "示例代码"
     ```cpp
-    --8<-- "docs/graph/code/rings-count/rings-count_4.cpp"
+    --8<-- "docs/graph/code/rings-count/rings-count_5.cpp"
     ```
 
 ## 习题

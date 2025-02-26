@@ -50,7 +50,7 @@ AVL 树，是一种平衡的二叉搜索树。由于各种算法教材上对 AVL
 
 插入或删除节点后，可能会造成 AVL 树的性质 2 被破坏。因此，需要沿着从被插入/删除的节点到根的路径对树进行维护。如果对于某一个节点，性质 2 不再满足，由于我们只插入/删除了一个节点，对树高的影响不超过 1，因此该节点的平衡因子的绝对值至多为 2。由于对称性，我们在此只讨论左子树的高度比右子树大 2 的情况，即下图中 $h(B)-h(E)=2$。此时，还需要根据 $h(A)$ 和 $h(C)$ 的大小关系分两种情况讨论。需要注意的是，由于我们是自底向上维护平衡的，因此对节点 D 的所有后代来说，性质 2 仍然是被满足的。
 
-![](./images/avl1.jpg)
+![](./images/avl1.svg)
 
 #### $h(A)\geq h(C)$
 
@@ -66,7 +66,7 @@ $$
 
 其中 $h(C)\geq x$ 是由于节点 B 满足性质 2，因此 $h(C)$ 和 $h(A)$ 的差不会超过 1。此时我们对节点 D 进行一次右旋操作（旋转操作与其它类型的平衡二叉搜索树相同），如下图所示。
 
-![](./images/avl2.jpg)
+![](./images/avl2.svg)
 
 显然节点 A、C、E 的高度不发生变化，并且有
 
@@ -94,7 +94,7 @@ $$
 
 此时我们先对节点 B 进行一次左旋操作，再对节点 D 进行一次右旋操作，如下图所示。
 
-![](./images/avl3.jpg)
+![](./images/avl3.svg)
 
 显然节点 A、E 的高度不发生变化，并且 B 的新右儿子和 D 的新左儿子分别为 C 原来的左右儿子，则有
 
@@ -109,24 +109,27 @@ $$
 \end{cases}
 $$
 
-因此旋转后的节点 B、C、D 也满足性质 2。最后给出对于一个节点维护平衡操作的伪代码。
+因此旋转后的节点 B、C、D 也满足性质 2。
 
-???+ note "实现"
-    ```text
-    Maintain-Balanced(p)
-        if h[ls[p]] - h[rs[p]] == 2
-            if h[ls[ls[p]]] >= h[rs[ls[p]]]
-                Right-Rotate(p)
-            else
-                Left-Rotate(ls[p])
-                Right-Rotate(p)
-        else if h[ls[p]] - h[rs[p]] == -2
-            if h[ls[rs[p]]] <= h[rs[rs[p]]]
-                Left-Rotate(p)
-            else
-                Right-Rotate(rs[p])
-                Left-Rotate(p)
-    ```
+???+ note "维护平衡操作：伪代码"
+    $$
+    \begin{array}{ll}
+    1 &  \textbf{function } \mathrm{MaintainBalance}(p) \\
+    2 &  \qquad l \gets ls_p, r \gets rs_p \\
+    3 &  \qquad \textbf{if } h(l)-h(r)=2 \\
+    4 &  \qquad\qquad \textbf{if } h(ls_l) \ge h(rs_l) \\
+    5 &  \qquad\qquad\qquad \mathrm{RightRotate}(p) \\
+    6 &  \qquad\qquad \textbf{else} \\
+    7 &  \qquad\qquad\qquad \mathrm{LeftRotate}(l) \\
+    8 &  \qquad\qquad\qquad \mathrm{RightRotate}(p) \\
+    9 &  \qquad \textbf{else if } h(l)-h(r)=-2 \\
+    10 &  \qquad\qquad \textbf{if } h(ls_r) \le h(rs_r) \\
+    11 &  \qquad\qquad\qquad \mathrm{LeftRotate}(p) \\
+    12 &  \qquad\qquad \textbf{else} \\
+    13 &  \qquad\qquad\qquad \mathrm{RightRotate}(r) \\
+    14 &  \qquad\qquad\qquad \mathrm{LeftRotate}(p) \\
+    \end{array}
+    $$
 
 与其他平衡二叉搜索树相同，AVL 树中节点的高度、子树大小等信息需要在旋转时进行维护。
 

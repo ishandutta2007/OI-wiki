@@ -71,9 +71,9 @@ void print(int a[]) {
     #include <cstdio>
     #include <cstring>
     
-    static const int LEN = 1004;
+    constexpr int LEN = 1004;
     
-    int a[LEN], b[LEN];
+    int a[LEN];
     
     void clear(int a[]) {
       for (int i = 0; i < LEN; ++i) a[i] = 0;
@@ -145,7 +145,7 @@ void add(int a[], int b[], int c[]) {
     #include <cstdio>
     #include <cstring>
     
-    static const int LEN = 1004;
+    constexpr int LEN = 1004;
     
     int a[LEN], b[LEN], c[LEN];
     
@@ -225,7 +225,7 @@ void sub(int a[], int b[], int c[]) {
     #include <cstdio>
     #include <cstring>
     
-    static const int LEN = 1004;
+    constexpr int LEN = 1004;
     
     int a[LEN], b[LEN], c[LEN];
     
@@ -383,10 +383,10 @@ void div(int a[], int b[], int c[], int d[]) {
     if (a[la - 1] != 0) break;
   for (lb = LEN - 1; lb > 0; --lb)
     if (b[lb - 1] != 0) break;
-  if (lb == 0) {
+  if (lb == 0) {  // 除数不能为零
     puts("> <");
     return;
-  }  // 除数不能为零
+  }
 
   // c 是商
   // d 是被除数的剩余部分，算法结束后自然成为余数
@@ -420,7 +420,7 @@ void div(int a[], int b[], int c[], int d[]) {
     #include <cstdio>
     #include <cstring>
     
-    static const int LEN = 1004;
+    constexpr int LEN = 1004;
     
     int a[LEN], b[LEN], c[LEN], d[LEN];
     
@@ -604,7 +604,7 @@ void div(int a[], int b[], int c[], int d[]) {
 
 我们可以把 double 作为媒介。假设被除数有 4 位，是 $a_4,a_3,a_2,a_1$，除数有 3 位，是 $b_3,b_2,b_1$，那么我们只要试一位的商：使用 $base$ 进制，用式子 $\dfrac{a_4 base + a_3}{b_3 + b_2 base^{-1} + (b_1+1)base^{-2}}$ 来估商。而对于多个位的情况，就是一位的写法加个循环。由于除数使用 3 位的精度来参与估商，能保证估的商 q' 与实际商 q 的关系满足 $q-1 \le q' \le q$，这样每个位在最坏的情况下也只需要两次试商。但与此同时要求 $base^3$ 在 double 的有效精度内，即 $base^3 < 2^{53}$，所以在运用这个方法时建议不要超过 32768 进制，否则很容易因精度不足产生误差从而导致错误。
 
-另外，由于估的商总是小于等于实际商，所以还有再进一步优化的空间。绝大多数情况下每个位只估商一次，这样在下一个位估商时，虽然得到的商有可能因为前一位的误差造成试商结果大于等于 base，但这没有关系，只要在最后再最后做统一进位便可。举个例子，假设 base 是 10，求 $395081/9876$，试商计算步骤如下：
+另外，由于估的商总是小于等于实际商，所以还有再进一步优化的空间。绝大多数情况下每个位只估商一次，这样在下一个位估商时，虽然得到的商有可能因为前一位的误差造成试商结果大于等于 base，但这没有关系，只要在最后做统一进位便可。举个例子，假设 base 是 10，求 $395081/9876$，试商计算步骤如下：
 
 1.  首先试商计算得到 $3950/988=3$，于是 $395081-(9876 \times 3 \times 10^1) = 98801$，这一步出现了误差，但不用管，继续下一步计算。
 2.  对余数 98801 继续试商计算得到 $9880/988=10$，于是 $98801-(9876 \times 10 \times 10^0) = 41$，这就是最终余数。
@@ -787,21 +787,17 @@ $$
 
 普通的多项式乘法时间复杂度仍是 $O(n^2)$，但可以用多项式一节中的 [快速傅里叶变换](poly/fft.md)、[快速数论变换](poly/ntt.md) 等算法优化，优化后的时间复杂度是 $O(n\log n)$。
 
-### Reference
-
-<https://en.wikipedia.org/wiki/Karatsuba_algorithm>
-
 ## 封装类
 
 [这里](https://paste.ubuntu.com/p/7VKYzpC7dn/) 有一个封装好的高精度整数类，以及 [这里](https://github.com/Baobaobear/MiniBigInteger/blob/main/bigint_tiny.h) 支持动态长度及四则运算的超迷你实现类。
 
 ??? 这里是另一个模板
     ```cpp
-    #define MAXN 9999
+    constexpr int MAXN = 9999;
     // MAXN 是一位中最大的数字
-    #define MAXSIZE 10024
+    constexpr int MAXSIZE = 10024;
     // MAXSIZE 是位数
-    #define DLEN 4
+    constexpr int DLEN = 4;
     
     // DLEN 记录压几位
     struct Big {
@@ -811,7 +807,7 @@ $$
       Big() {
         len = 1;
         memset(a, 0, sizeof a);
-        flag = 0;
+        flag = false;
       }
     
       Big(const int);
@@ -902,11 +898,11 @@ $$
       if (*this < T) {
         t1 = T;
         t2 = *this;
-        ctf = 1;
+        ctf = true;
       } else {
         t1 = *this;
         t2 = T;
-        ctf = 0;
+        ctf = false;
       }
       big = t1.len;
       int j = 0;
@@ -985,14 +981,14 @@ $$
     
     bool Big::operator<(const Big& T) const {
       int ln;
-      if (len < T.len) return 233;
+      if (len < T.len) return true;
       if (len == T.len) {
         ln = len - 1;
         while (ln >= 0 && a[ln] == T.a[ln]) --ln;
-        if (ln >= 0 && a[ln] < T.a[ln]) return 233;
-        return 0;
+        if (ln >= 0 && a[ln] < T.a[ln]) return true;
+        return false;
       }
-      return 0;
+      return false;
     }
     
     bool Big::operator<(const int& t) const {
@@ -1019,6 +1015,10 @@ $$
 -   [NOIP 2012 国王游戏](https://loj.ac/problem/2603)
 -   [SPOJ - Fast Multiplication](http://www.spoj.com/problems/MUL/en/)
 -   [SPOJ - GCD2](http://www.spoj.com/problems/GCD2/)
--   [UVA - Division](https://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1024)
--   [UVA - Fibonacci Freeze](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=436)
+-   [UVa - Division](https://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=1024)
+-   [UVa - Fibonacci Freeze](https://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=436)
 -   [Codeforces - Notepad](http://codeforces.com/contest/17/problem/D)
+
+## 参考资料与链接
+
+1.  [Karatsuba algorithm - Wikipedia](https://en.wikipedia.org/wiki/Karatsuba_algorithm)

@@ -1,73 +1,91 @@
-#include <bits/stdc++.h>
-#define ls x << 1
-#define rs x << 1 | 1
-#define N 1000010
+#include <algorithm>
+#include <cstdio>
+#include <cstring>
+constexpr int MAXN = 300;
 using namespace std;
 
-struct node {
-  int l, r, ans;
-} q[N];
+int lazy[MAXN << 3];  // 标记了这条线段出现的次数
+double s[MAXN << 3];
 
-struct t {
-  int num, s;
-};
+struct node1 {
+  double l, r;
+  double sum;
+} cl[MAXN << 3];  // 线段树
 
-vector<t> p[N];
-int n, a[N], m, now[N];
-int siz[N << 2];
+struct node2 {
+  double x, y1, y2;
+  int flag;
+} p[MAXN << 3];  // 坐标
 
-void update(int x, int l, int r, int ad) {
-  if (l == r && l == ad) {
-    siz[x]++;
-    return;
-  }
-  int mid = l + r >> 1;
-  if (ad <= mid) {
-    update(ls, l, mid, ad);
-  } else {
-    update(rs, mid + 1, r, ad);
-  }
-  siz[x] = siz[ls] + siz[rs];
+// 定义sort比较
+bool cmp(node2 a, node2 b) { return a.x < b.x; }
+
+// 上传
+void pushup(int rt) {
+  if (lazy[rt] > 0)
+    cl[rt].sum = cl[rt].r - cl[rt].l;
+  else
+    cl[rt].sum = cl[rt * 2].sum + cl[rt * 2 + 1].sum;
 }
 
-int query(int x, int l, int r, int L, int R) {
-  if (l >= L && r <= R) {
-    return siz[x];
+// 建树
+void build(int rt, int l, int r) {
+  if (r - l > 1) {
+    cl[rt].l = s[l];
+    cl[rt].r = s[r];
+    build(rt * 2, l, (l + r) / 2);
+    build(rt * 2 + 1, (l + r) / 2, r);
+    pushup(rt);
+  } else {
+    cl[rt].l = s[l];
+    cl[rt].r = s[r];
+    cl[rt].sum = 0;
   }
-  int mid = l + r >> 1;
-  int res = 0;
-  if (L <= mid) {
-    res += query(ls, l, mid, L, R);
+  return;
+}
+
+// 更新
+void update(int rt, double y1, double y2, int flag) {
+  if (cl[rt].l == y1 && cl[rt].r == y2) {
+    lazy[rt] += flag;
+    pushup(rt);
+    return;
+  } else {
+    if (cl[rt * 2].r > y1) update(rt * 2, y1, min(cl[rt * 2].r, y2), flag);
+    if (cl[rt * 2 + 1].l < y2)
+      update(rt * 2 + 1, max(cl[rt * 2 + 1].l, y1), y2, flag);
+    pushup(rt);
   }
-  if (R > mid) {
-    res += query(rs, mid + 1, r, L, R);
-  }
-  return res;
 }
 
 int main() {
-  scanf("%d", &n);
-  for (int i = 1; i <= n; i++) {
-    scanf("%d", &a[i]);
-  }
-  scanf("%d", &m);
-  for (int i = 1; i <= m; i++) {
-    int l, r;
-    scanf("%d%d", &l, &r);
-    p[l - 1].push_back(t{i, -1});
-    p[r].push_back(t{i, 1});
-    q[i] = node{l, r, 0};
-  }
-  for (int i = 1; i <= n; i++) {
-    update(1, 0, n, now[a[i]]);
-    now[a[i]] = i;
-    for (auto x : p[i]) {
-      int num = x.num;
-      q[num].ans += x.s * query(1, 0, n, 0, q[num].l - 1);
+  int temp = 1, n;
+  double x1, y1, x2, y2, ans;
+  while (scanf("%d", &n) && n) {
+    ans = 0;
+    for (int i = 0; i < n; i++) {
+      scanf("%lf %lf %lf %lf", &x1, &y1, &x2, &y2);
+      p[i].x = x1;
+      p[i].y1 = y1;
+      p[i].y2 = y2;
+      p[i].flag = 1;
+      p[i + n].x = x2;
+      p[i + n].y1 = y1;
+      p[i + n].y2 = y2;
+      p[i + n].flag = -1;
+      s[i + 1] = y1;
+      s[i + n + 1] = y2;
     }
-  }
-  for (int i = 1; i <= m; i++) {
-    printf("%d\n", q[i].ans);
+    sort(s + 1, s + (2 * n + 1));  // 离散化
+    sort(p, p + 2 * n, cmp);  // 把矩形的边的横坐标从小到大排序
+    build(1, 1, 2 * n);       // 建树
+    memset(lazy, 0, sizeof(lazy));
+    update(1, p[0].y1, p[0].y2, p[0].flag);
+    for (int i = 1; i < 2 * n; i++) {
+      ans += (p[i].x - p[i - 1].x) * cl[1].sum;
+      update(1, p[i].y1, p[i].y2, p[i].flag);
+    }
+    printf("Test case #%d\nTotal explored area: %.2lf\n\n", temp++, ans);
   }
   return 0;
 }

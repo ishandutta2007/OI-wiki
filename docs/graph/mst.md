@@ -1,4 +1,4 @@
-author: Chrogeek, Enter-tainer, HeRaNO, Ir1d, Marcythm, ShadowsEpic, StudyingFather, Xeonacid, bear-good, billchenchina, diauweb, diauweb, greyqz, kawa-yoiko, ouuan, partychicken, sshwy, stevebraveman, zhouyuyang2002, renbaoshuo, Hszzzx
+author: Chrogeek, Enter-tainer, HeRaNO, Ir1d, Marcythm, ShadowsEpic, StudyingFather, Xeonacid, bear-good, billchenchina, diauweb, diauweb, greyqz, kawa-yoiko, ouuan, partychicken, sshwy, stevebraveman, zhouyuyang2002, renbaoshuo, Hszzzx, y-kx-b, toprise
 
 ## 定义
 
@@ -92,6 +92,27 @@ $$
 
 所以，$T+e-f$ 包含了 $F$，并且也是一棵最小生成树，归纳成立。
 
+### 例题
+
+???+ note "[洛谷 P1195 口袋的天空](https://www.luogu.com.cn/problem/P1195)"
+    有 $n$ 朵云，你要将它们连成 $k$ 个棉花糖，将 $X_i$ 云朵和 $Y_i$ 连接起来需要 $L_i$ 的代价，求最小代价。
+
+??? note "例题代码"
+    === "C++"
+        ```cpp
+        --8<-- "docs/graph/code/mst/mst_3.cpp"
+        ```
+    
+    === "Python"
+        ```python
+        --8<-- "docs/graph/code/mst/mst_3.py"
+        ```
+    
+    === "Java"
+        ```java
+        --8<-- "docs/graph/code/mst/mst_3.java"
+        ```
+
 ## Prim 算法
 
 Prim 算法是另一种常见并且好写的最小生成树算法。该算法的基本思想是从一个结点开始，不断加点（而不是 Kruskal 算法的加边）。
@@ -148,7 +169,7 @@ $$
     #include <iostream>
     #include <queue>
     using namespace std;
-    const int N = 5050, M = 2e5 + 10;
+    constexpr int N = 5050, M = 2e5 + 10;
     
     struct E {
       int v, w, x;
@@ -179,7 +200,7 @@ $$
         int u = q.top().u, d = q.top().d;
         q.pop();
         if (vis[u]) continue;
-        vis[u] = 1;
+        vis[u] = true;
         ++cnt;
         res += d;
         for (int i = h[u]; i; i = e[i].x) {
@@ -233,7 +254,9 @@ $$
 
 ## Boruvka 算法
 
-接下来介绍另一种求解最小生成树的算法——Boruvka 算法。该算法的思想是前两种算法的结合。它可以用于求解 **边权互不相同** 的无向图的最小生成森林。（无向连通图就是最小生成树。）
+接下来介绍另一种求解最小生成树的算法——Boruvka 算法。该算法的思想是前两种算法的结合。它可以用于求解无向图的最小生成森林。（无向连通图就是最小生成树。）
+
+在边具有较多特殊性质的问题中，Boruvka 算法具有优势。例如 [CF888G](https://codeforces.com/problemset/problem/888/G) 的完全图问题。
 
 为了描述该算法，我们需要引入一些定义：
 
@@ -273,6 +296,8 @@ $$
 17 &  \qquad\qquad\text{ Add its cheapest edge to }F \\
 \end{array}
 $$
+
+需要注意边与边的比较通常需要第二关键字（例如按编号排序），以便当边权相同时分出边的大小。
 
 ## 习题
 
@@ -331,8 +356,8 @@ $$
     #include <algorithm>
     #include <iostream>
     
-    const int INF = 0x3fffffff;
-    const long long INF64 = 0x3fffffffffffffffLL;
+    constexpr int INF = 0x3fffffff;
+    constexpr long long INF64 = 0x3fffffffffffffffLL;
     
     struct Edge {
       int u, v, val;
@@ -363,7 +388,7 @@ $$
     
      public:
       void addedge(int u, int v, int val) {
-        e[++cnt] = (Edge){v, head[u], val};
+        e[++cnt] = Edge{v, head[u], val};
         head[u] = cnt;
       }
     
@@ -446,22 +471,21 @@ $$
           tot++;
           tr.insedge(e[i].u, e[i].v, e[i].val);
           sum += e[i].val;
-          used[i] = 1;
+          used[i] = true;
         }
         if (tot == n - 1) break;
       }
     }
     
     int main() {
-      std::ios::sync_with_stdio(0);
-      std::cin.tie(0);
-      std::cout.tie(0);
+      std::ios::sync_with_stdio(false);
+      std::cin.tie(nullptr);
     
       std::cin >> n >> m;
       for (int i = 1; i <= m; i++) {
         int u, v, val;
         std::cin >> u >> v >> val;
-        e[i] = (Edge){u, v, val};
+        e[i] = Edge{u, v, val};
       }
     
       Kruskal();
@@ -569,7 +593,7 @@ $$
 ??? note "[NOI 2018 归程](https://uoj.ac/problem/393)"
     首先预处理出来每一个点到根节点的最短路。
     
-    我们构造出来根据海拔的最大生成树。显然每次询问可以到达的节点是在最小生成树和询问点的最小边权 $\geq p$ 的节点。
+    我们构造出来根据海拔的最大生成树。显然每次询问可以到达的节点是在最大生成树中和询问点的路径上最小边权 $> p$ 的节点。
     
     根据 Kruskal 重构树的性质，这些节点满足均在一棵子树内同时为其所有叶子节点。
     

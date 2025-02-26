@@ -1,4 +1,4 @@
-author: Marcythm, Xeonacid
+author: Marcythm, Xeonacid, CSPNOIP
 
 ## 定义
 
@@ -10,7 +10,7 @@ author: Marcythm, Xeonacid
 
 其可以在 $O\left(\frac{n^{\frac{3}{4}}}{\log{n}}\right)$ 或 $\Theta\left(n^{1 - \epsilon}\right)$ 的时间复杂度下解决一类 **积性函数** 的前缀和问题。
 
-要求：$f(p)$ 是一个关于 $p$ 的项数较少的多项式或可以快速求值；$f(p^{c})$ 可以快速求值。
+要求：$f(p)$ 是一个关于 $p$ 可以快速求值的完全积性函数之和（例如多项式）；$f(p^{c})$ 可以快速求值。
 
 ## 记号
 
@@ -58,14 +58,14 @@ $$
 
 > Notice：$g(p) = p^{s}$ 是完全积性函数！
 
-于是设 $G_{k}(n) := \sum_{i = 1}^{n} \left[p_{k} < \operatorname{lpf}(i) \lor \operatorname{isprime}(i)\right] g(i)$，即埃筛第 $k$ 轮筛完后剩下的数的 $g$ 值之和。  
-对于一个合数 $x$，必定有 $\operatorname{lpf}(x) \le \sqrt{x}$，则 $F_{\mathrm{prime}} = G_{\left\lfloor\sqrt{n}\right\rfloor}$，故只需筛到 $G_{\left\lfloor\sqrt{n}\right\rfloor}$ 即可。  
+于是设 $G_{k}(n) := \sum_{i = 2}^{n} \left[p_{k} < \operatorname{lpf}(i) \lor \operatorname{isprime}(i)\right] g(i)$，即埃筛第 $k$ 轮筛完后剩下的数的 $g$ 值之和。  
+对于一个合数 $x \le n$，必定有 $\operatorname{lpf}(x) \le \sqrt{x} \le \sqrt{n}$。设 $p_{\ell(n)}$ 为不大于 $\sqrt{n}$ 的最大质数，则 $F_{\mathrm{prime}}(n) = G_{\ell(n)}(n)$，即在埃筛进行 $\ell$ 轮之后剩下的均为质数。
 考虑 $G$ 的边界值，显然为 $G_{0}(n) = \sum_{i = 2}^{n} g(i)$。（还记得吗？特别约定了 $p_{0} = 1$）  
 对于转移，考虑埃筛的过程，分开讨论每部分的贡献，有：
 
 1.  对于 $n < p_{k}^{2}$ 的部分，$G$ 值不变，即 $G_{k}(n) = G_{k - 1}(n)$。
 2.  对于 $p_{k}^{2} \le n$ 的部分，被筛掉的数必有质因子 $p_{k}$，即 $-g(p_{k}) G_{k - 1}(n / p_{k})$。
-3.  对于第二部分，由于 $p_{k}^{2} \le n \iff p_{k} \le n / p_{k}$，故会有 $\operatorname{lpf}(i) < p_{k}$ 的 $i$ 被减去。这部分应当加回来，即 $g(p_{k}) G_{k - 1}(p_{k - 1})$。
+3.  对于第二部分，由于 $p_{k}^{2} \le n \iff p_{k} \le n / p_{k}$，满足 $\operatorname{lpf}(i) < p_{k}$ 的 $i$ 会被额外减去。这部分应当加回来，即 $g(p_{k}) G_{k - 1}(p_{k - 1})$。
 
 则有：
 

@@ -46,6 +46,8 @@
         tcost = [0] * 103
         mget = [0] * 103
         ans = 0
+        
+        
         def dfs(pos, tleft, tans):
             global ans
             if tleft < 0:
@@ -55,9 +57,11 @@
                 return
             dfs(pos + 1, tleft, tans)
             dfs(pos + 1, tleft - tcost[pos], tans + mget[pos])
-        t, n = map(lambda x:int(x), input().split())
+        
+        
+        t, n = map(lambda x: int(x), input().split())
         for i in range(1, n + 1):
-            tcost[i], mget[i] = map(lambda x:int(x), input().split())
+            tcost[i], mget[i] = map(lambda x: int(x), input().split())
         dfs(1, t, 0)
         print(ans)
         ```
@@ -106,6 +110,8 @@
         tcost = [0] * 103
         mget = [0] * 103
         mem = [[-1 for i in range(1003)] for j in range(103)]
+        
+        
         def dfs(pos, tleft):
             if mem[pos][tleft] != -1:
                 return mem[pos][tleft]
@@ -118,9 +124,11 @@
                 dfs2 = dfs(pos + 1, tleft - tcost[pos]) + mget[pos]
             mem[pos][tleft] = max(dfs1, dfs2)
             return mem[pos][tleft]
-        t, n = map(lambda x:int(x), input().split())
+        
+        
+        t, n = map(lambda x: int(x), input().split())
         for i in range(1, n + 1):
-            tcost[i], mget[i] = map(lambda x:int(x), input().split())
+            tcost[i], mget[i] = map(lambda x: int(x), input().split())
         print(dfs(1, t))
         ```
 
@@ -131,7 +139,6 @@
 下面给出的是递推实现的代码（为了方便对比，没有添加滚动数组优化），通过对比可以发现二者在形式上的类似性。
 
 ```cpp
-const int maxn = 1010;
 int n, t, w[105], v[105], f[105][1005];
 
 int main() {

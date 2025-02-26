@@ -62,22 +62,23 @@ int func(传入数值) {
         ```python
         # 不使用递归的归并排序算法
         def merge_sort(a):
-          n = len(a)
-          seg, start = 1, 0
-          while seg < n:
-              while start < n - seg:
-                  merge(a, start, start + seg - 1, min(start + seg + seg - 1, n - 1))
-                  start = start + seg + seg
-              seg = seg + seg
-          
+            n = len(a)
+            seg, start = 1, 0
+            while seg < n:
+                while start < n - seg:
+                    merge(a, start, start + seg - 1, min(start + seg + seg - 1, n - 1))
+                    start = start + seg + seg
+                seg = seg + seg
+        
+        
         # 使用递归的归并排序算法
         def merge_sort(a, front, end):
-          if front >= end:
-              return
-          mid = front + (end - front) / 2
-          merge_sort(a, front, mid)
-          merge_sort(a, mid + 1, end)
-          merge(a, front, mid, end)
+            if front >= end:
+                return
+            mid = front + (end - front) / 2
+            merge_sort(a, front, mid)
+            merge_sort(a, mid + 1, end)
+            merge(a, front, mid, end)
         ```
 
     显然，递归版本比非递归版本更易理解。递归版本的做法一目了然：把左半边排序，把右半边排序，最后合并两边。而非递归版本看起来不知所云，充斥着各种难以理解的边界计算细节，特别容易出 bug，且难以调试。
@@ -222,30 +223,12 @@ void traverse(TreeNode* root) {
     ```
     
     ```cpp
-    /**
-     * 二叉树结点的定义
-     * struct TreeNode {
-     *     int val;
-     *     TreeNode *left;
-     *     TreeNode *right;
-     *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-     * };
-     */
+    --8<-- "docs/basic/code/divide-and-conquer/divide-and-conquer_1.h"
     ```
 
 ??? note "参考代码"
     ```cpp
-    int pathSum(TreeNode *root, int sum) {
-      if (root == nullptr) return 0;
-      return count(root, sum) + pathSum(root->left, sum) +
-             pathSum(root->right, sum);
-    }
-    
-    int count(TreeNode *node, int sum) {
-      if (node == nullptr) return 0;
-      return (node->val == sum) + count(node->left, sum - node->val) +
-             count(node->right, sum - node->val);
-    }
+    --8<-- "docs/basic/code/divide-and-conquer/divide-and-conquer_1.cpp"
     ```
 
 ??? note "题目解析"

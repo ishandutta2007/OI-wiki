@@ -35,9 +35,9 @@
     // 来源：刘汝佳白书第 323 页
     struct Twosat {
       int n;
-      vector<int> g[maxn * 2];
-      bool mark[maxn * 2];
-      int s[maxn * 2], c;
+      vector<int> g[MAXN * 2];
+      bool mark[MAXN * 2];
+      int s[MAXN * 2], c;
     
       bool dfs(int x) {
         if (mark[x ^ 1]) return false;
@@ -76,7 +76,7 @@
 
 ## 例题
 
-### **HDU3062 [Party](https://vjudge.net/problem/HDU-3062)**
+### **HDU3062 [Party](https://acm.hdu.edu.cn/showproblem.php?pid=3062)**
 
 > 题面：有 n 对夫妻被邀请参加一个聚会，因为场地的问题，每对夫妻中只有 $1$ 人可以列席。在 $2n$ 个人中，某些人之间有着很大的矛盾（当然夫妻之间是没有矛盾的），有矛盾的 $2$ 个人是不会同时出现在聚会上的。有没有可能会有 $n$ 个人同时列席？
 
